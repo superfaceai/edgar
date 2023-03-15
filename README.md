@@ -6,8 +6,8 @@ At heart, EDGAR differs from other AI agents by leveraging existing API docs to 
 
 
 **[→ Add your favorite API](#adding-your-api)<br />**
-[→ Check requested APIs pipeline](https://github.com/superfaceai/edgar/issues?q=is%3Aissue+is%3Aopen+label%3Aapi-request)<br />
-[→ Send us feedback about EDGAR](https://github.com/superfaceai/edgar/issues/new?template=FEEDBACK.md)
+[→ Check requested APIs pipeline](https://github.com/superfaceai/edgar-community/issues?q=is%3Aissue+is%3Aopen+label%3Aapi-request)<br />
+[→ Send us feedback about EDGAR](https://github.com/superfaceai/edgar-community/issues/new?template=FEEDBACK.md)
 
 ---
 
