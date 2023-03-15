@@ -5,7 +5,7 @@
 At heart, EDGAR differs from other AI agents by leveraging existing API docs to create your integration. This means the AI engine first analyzes the human-readable documentation and then builds your use case from that. In other words — **it reads and analyzes the docs so you don't have to**.
 
 **[→ Add your favorite API](#adding-your-api)<br />**
-[→ Check requested APIs pipeline](https://github.com/superfaceai/edgar-community/issues?q=is%3Aopen+label%3Aapi-request)<br />
+[→ Check out list of already available APIs](./docs)<br />
 [→ Send us feedback about EDGAR](https://github.com/superfaceai/edgar-community/issues/new?template=FEEDBACK.md)
 
 ---
