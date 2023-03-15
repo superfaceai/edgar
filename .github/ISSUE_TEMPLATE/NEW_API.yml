@@ -3,10 +3,6 @@ description: Request your favorite API to be added to EDGAR
 title: "[API REQUEST]: "
 labels: ["api-request"]
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Thanks for taking the time to improve EDGAR!
   - type: input
     id: docs-url
     attributes:
@@ -33,3 +29,7 @@ body:
         - I'm the API provider
     validations:
       required: false
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to improve EDGAR!
