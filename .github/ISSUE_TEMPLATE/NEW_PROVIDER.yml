@@ -32,4 +32,4 @@ body:
         - I already consume this API
         - I'm the API provider
     validations:
-      required: false
+      required: true
