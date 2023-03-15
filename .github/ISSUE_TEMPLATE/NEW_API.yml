@@ -1,4 +1,4 @@
-name: Add new API
+name: Suggest new API
 description: Request your favorite API to be added to EDGAR
 title: "[API REQUEST]: "
 labels: ["api-request"]
@@ -32,4 +32,4 @@ body:
         - I already consume this API
         - I'm the API provider
     validations:
-      required: true
+      required: false
