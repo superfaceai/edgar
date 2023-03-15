@@ -9,6 +9,7 @@ labels: feedback
 
 ### Used Prompt
 <!--- If you're giving a feedback about the specific attempt you had, please provide us with some details about your inputs -->
+
 - Prompt: 
 - API: 
 

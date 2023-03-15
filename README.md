@@ -4,7 +4,6 @@
 
 At heart, EDGAR differs from other AI agents by leveraging existing API docs to create your integration. This means the AI engine first analyzes the human-readable documentation and then builds your use case from that. In other words — **it reads and analyzes the docs so you don't have to**.
 
-
 **[→ Add your favorite API](#adding-your-api)<br />**
 [→ Check requested APIs pipeline](https://github.com/superfaceai/edgar-community/issues?q=is%3Aopen+label%3Aapi-request)<br />
 [→ Send us feedback about EDGAR](https://github.com/superfaceai/edgar-community/issues/new?template=FEEDBACK.md)
@@ -41,6 +40,8 @@ This endpoint lists all items (...)
 (...)
 ```
 
-Entire documentation for an API provider is then stored in a single `.txt` file in `docs` directory.
+Entire documentation for an API provider is then stored in **a single `.txt` file in `docs` directory**.
 
 Then, open a pull request and wait for one of our reviewers to approve the new API. In the meantime, consider Starring the repo so that you don't miss new development.
+
+If you're unable to open a PR, you can also [suggest a new API](https://github.com/superfaceai/edgar-community/issues/new?template=NEW_API.yml).
