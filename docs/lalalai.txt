@@ -1,0 +1,274 @@
+================================================================================
+
+POST /api/upload/
+    Uploads a file to the server. The file will be deleted in a day.
+
+Parameters (http headers):
+    Content-Disposition: attachment; filename=<filename> -- a name of the file (see rfc6266).
+    Authorization: license <key> -- a user license, optional (if there is no license it is necessary to use csrf tokens)
+
+Returns (json):
+    {
+        "status": "success" | "error"
+        "id": uploaded file id if the status is "success"
+        "size" (int): the media file size in bytes if the status is "success"
+        "duration" (float): the media file duration in seconds if the status is "success"
+        "expires" (int): file expiration time in Unix epoch format with UTC timezone if the status is "success"
+        "error": Error description if the status is "error"
+    }
+
+Examples:
+    $ curl --url https://www.lalal.ai/api/upload/ --data-binary @any_file.mp3 --header "Content-Disposition: attachment; filename=any_file.mp3" --header "Authorization: license 14abcde0"
+    {"status": "success", "id": "9a3ae258-7693-4046-87c2-ef577eb752bb", "duration": 435.05}
+
+    $ curl --url https://www.lalal.ai/api/upload/ --data-binary @any_file.mp3
+    {"status": "error", "error": "No file name (use the Content-Disposition header)"}
+
+Notes:
+    Upload limit is 2Gb if a request has a valid license in the Authorization header otherwise 1Gb
+
+
+
+
+================================================================================
+
+POST /api/preview/
+    Puts a file in the preview queue (if stem option is 'vocals' - the minute since first vocal introduction, else - first minute of track).
+
+Parameters (http headers):
+    Authorization: license <key> -- a user license, optional (if there is no license it is necessary to use csrf tokens)
+
+Parameters (form-urlencoded):
+    id     (str): File id obtained from /upload/ method.
+    filter (int, optional): Number of postprocess iterations with MWF.
+                            Possible values are 0 -- mild, 1 -- normal (default), 2 -- aggressive.
+    stem   (str, optional): Split source track to track with selected stem and back track.
+                            One of ("vocals", "voice", "drum", "bass", "piano", "electric_guitar", "acoustic_guitar", "synthesizer", "strings", "wind").
+                            "vocals" by default.
+    splitter (str, optional): The type of neural network used to split audio. Possible values are 'cassiopeia' (default) or 'phoenix'. Stems "voice", "strings", "wind" are not supported by Cassiopeia
+
+Returns (json):
+    {
+        "status": "success" | "error"
+        "error": Error description if the status is "error"
+    }
+
+Examples:
+    $ curl --url https://www.lalal.ai/api/preview/ --header "Authorization: license 14abcde0" --form-string "id=9a3ae258-7693-4046-87c2-ef577eb752bb" --form-string "filter_type=2"
+    {"status": "success"}
+
+    $ curl --url https://www.lalal.ai/api/preview/
+    {"status": "error", "error": "No file id"}
+
+
+
+
+================================================================================
+
+POST /api/split/
+    Puts a file or multiple files in the split queue (full media file splitting).
+    If muptiple files passed and user have any paid license - batch processing automatically will start
+
+Parameters (http headers):
+    Authorization: license <key> -- a user license, required
+
+Parameters (form-urlencoded):
+    params (str): json encoded list of dict with split arguments:
+
+        id     (str): File id obtained from /upload/ method.
+        filter (int, optional): Number of postprocess iterations with MWF.
+                                Possible values are 0 -- mild, 1 -- normal (default), 2 -- aggressive.
+        stem   (str, optional): Split source track to track with selected stem and back track.
+                                One of ("vocals", "voice", "drum", "bass", "piano", "electric_guitar, "acoustic_guitar", "synthesizer", "strings", "wind").
+                                "vocals" by default.
+        splitter (str, optional): The type of neural network used to split audio. Possible values are 'cassiopeia' (default) or 'phoenix'. Stems "voice", "strings", "wind" are not supported by Cassiopeia
+
+Returns (json):
+    {
+        "status": "success" | "error"
+        "error": Error description if the status is "error"
+    }
+
+Examples:
+    $ curl --url https://www.lalal.ai/api/split/ --header "Authorization: license 14abcde0" 
+    --form-string 'params=[{"id": "9a3ae258", "filter": 2, "stem": "piano"}, {"id": "ef577eb", "stem": "vocals"}]'
+    {"status": "success"}
+
+    $ curl --url https://www.lalal.ai/api/split/ --form-string 'params=[{"id=9a3ae258-7693-4046-87c2-ef577eb752bb"}]'
+    {"status": "error", "error": "No lisence (use Authorization header)"}
+
+
+
+
+================================================================================
+
+POST /api/cancel/
+    Cancels the current task and sets the status to canceled for the task, if it exists and is running.
+
+Parameters (http headers):
+    Authorization: license <key> -- a user license, optional (if there is no license it is necessary to use csrf tokens)
+
+Parameters (form-urlencoded):
+    id (str): Comma separated file ids obtained from /upload/ method.
+
+Returns (json):
+    {
+        "status": "success" | "error"
+        "error": Error description if the status is "error"
+    }
+Examples:
+    $ curl --url https://www.lalal.ai/api/cancel/ --header "Authorization: license 14abcde0" --form-string "id=9a3ae258-7693-4046-87c2-ef577eb752bb,a1d5ebb6-208a-47fd-99b7-891ba5d9d6e6"
+    {"status": "success"}
+
+    $ curl --url https://www.lalal.ai/api/cancel/ --header "Authorization: license 14abcde0" --form-string "id=9a3ae258-7693-4046-87c2"
+    {"status": "error", "error": "Invalid file id"}
+
+
+
+
+================================================================================
+
+POST /api/check/
+    Gets the file info, results of preview, split, batch, task's statuses, etc.
+
+Parameters (http headers):
+    Authorization: license <key> -- a user license, required
+
+Parameters (form-urlencoded):
+    id (str): Comma separated file ids obtained from /upload/ method.
+
+Returns (json):
+    {
+        "status": "success" | "error"
+        "result": {
+            "file_id_1": {
+                "status": "success" | "error"
+                "name": the file name if the status is "success"
+                "size": the file size in bytes if the status is "success"
+                "duration": estimated file duration in seconds if the status is "success"
+                "splitter": "cassiopeia" | "phoenix"
+                "stem": stem option if the status is "success".
+                        one of ("vocals", "drum", "bass", "piano", "electric_guitar", "acoustic_guitar", "synthesizer").
+                        "vocals" by default.
+
+                "preview" (nullable): {
+                    "duration": actual duration in seconds for preview
+                    "stem": stem option for preview,
+                    "stem_track": a url of preview stem,
+                    "stem_track_size" (int): stem file size in bytes,
+                    "back_track": a url of preview back track,
+                    "back_track_size" (int): back track file size in bytes
+                }: if the status is "success" and the preview task has successfully completed
+
+                "split" (nullable): {
+                    "duration": actual duration in seconds for split
+                    "stem": stem option for split,
+                    "stem_track": a url of stem,
+                    "stem_track_size" (int): stem file size in bytes,
+                    "back_track": a url of back track,
+                    "back_track_size" (int): back track file size in bytes
+                } if the status is "success" and the split task with PAID license has successfully completed
+
+                "player" (nullable): {
+                    "stem_track": a url of preview stem,
+                    "stem_track_size" (int): stem file size in bytes,
+                    "back_track": a url of preview back track,
+                    "back_track_size" (int): back track file size in bytes
+                }: if the status is "success" and the split task with FREE license has successfully completed
+
+                "task" (nullable): {
+                    "state": "success" | "error" | "progress" | "cancelled",
+                    "error" (nullable): Error description if the state is "error",
+                    "progress" (int, nullable): a task progress (0..100) if the state is "progress",
+                } if the status is "success" and some task has been invoked
+
+                "error": Error description if the status is "error"
+            },
+            "file_id_2": {
+                ...
+            },
+            "archive" (nullable): {
+                "status": "waiting" | "success" | "error"
+                "url": url to download the archive
+                "size": archive file size
+                "error": if the status is "error"
+            } if user uses website
+        }
+    }
+
+Examples:
+    $ curl --url https://www.lalal.ai/api/check/ --form-string "id=9a3ae258-7693-4046-87c2-ef577eb752bb,a1d5ebb6-208a-47fd-99b7-891ba5d9d6e6" --header "Authorization: license 14abcde0"
+    {
+        "status": "success",
+        "result": {
+            '9a3ae258-7693-4046-87c2-ef577eb752bb': {"status": "success", "name": "song.mp3", ...},
+            'a1d5ebb6-208a-47fd-99b7-891ba5d9d6e6': {"status": "error", "error": "Invalid extension",},
+        }
+    }
+
+    $ curl --url https://www.lalal.ai/api/check/ --form-string "id=9a3ae258" --header "Authorization: license 14abcde0"
+    {"status": "error", "error": "Invalid file id"}
+
+
+
+
+================================================================================
+
+Deprecated! Use /billing/get-limits/
+
+GET /billing/get-licence/?key=<licence key>
+    Current user licence info. Calculates summary user limits.
+
+Parameters (query string):
+    key (str): a license key.
+
+Returns (json):
+    {
+        "status": "success" | "error",
+        "error": Error description if the status is "error",
+        "key": licence key,
+        "option": licence type,
+        "email": user email,
+        "creation_time": licence creation time,
+        "process_duration_limit" (float): total tracks duration limit in minutes,
+        "process_duration_used" (float): total processed tracks duration in minutes,
+    }
+
+Examples:
+    $ curl --url https://www.lalal.ai/billing/get-licence/?key=d5394d17"
+    {"status": "success", "key": "d5394d17", "option": "standard", "creation_time": "2020-08-26T12:11:15.028Z" ...
+
+    $ curl --url https://www.lalal.ai/billing/get-licence/?key=d539"
+    {"status": "error", "error": "License not found"}
+
+
+
+
+================================================================================
+
+GET /billing/get-limits/?key=<license key>
+    Summary user limits.
+
+Parameters (query string):
+    key (str): a license key.
+
+Returns (json):
+    {
+        "status": "success" | "error",
+        "error": Error description if the status is "error",
+        "option": current user option,
+        "email": user email,
+        "process_duration_limit" (float): total tracks duration limit in minutes,
+        "process_duration_used" (float): total processed tracks duration in minutes,
+        "process_duration_left" (float): total tracks duration left in minutes,
+    }
+
+Examples:
+    $ curl --url https://www.lalal.ai/billing/get-limits/?key=d5394d17"
+    {"status": "success", "option": "Plus", "email": "user@mail.com",  ...
+
+    $ curl --url https://www.lalal.ai/billing/get-limits/?key=d539"
+    {"status": "error", "error": "License not found"}
+
+
+
