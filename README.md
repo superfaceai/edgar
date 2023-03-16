@@ -1,6 +1,6 @@
 # EDGAR
 
-**EDGAR is an AI-powered assistant for integrating APIs.**
+**EDGAR is an AI-powered assistant for integrating APIs.** Try it out now at [superface.ai/edgar](https://superface.ai/edgar)
 
 At heart, EDGAR differs from other AI agents by leveraging existing API docs to create your integration. This means the AI engine first analyzes the human-readable documentation and then builds your use case from that. In other words — **it reads and analyzes the docs so you don't have to**.
 
