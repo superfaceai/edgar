@@ -1,30 +1,28 @@
 # EDGAR
 
-**EDGAR is an AI-powered assistant for integrating APIs.** Try it out now at [superface.ai/edgar](https://superface.ai/edgar)
+**AI tool for integrating APIs.** 
 
-At heart, EDGAR differs from other AI agents by leveraging existing API docs to create your integration. This means the AI engine first analyzes the human-readable documentation and then builds your use case from that. In other words — **it reads and analyzes the docs so you don't have to**.
+Try it out now at [superface.ai/edgar](https://superface.ai/edgar)
 
-This repository is a collection of the API documentation sources EDGAR can use.
+EDGAR reads and analyzes API docs so you don't have to. Then, based on your plain english input, EDGAR builds the API integration to be used via [Superface OneService](https://github.com/superfaceai/one-service).
 
-**[→ Add your favorite API](#adding-your-api)<br />**
-[→ Check out list of already available APIs](./docs)<br />
-[→ Send us feedback about EDGAR](https://github.com/superfaceai/edgar-community/issues/new?template=FEEDBACK.md)
+This repository is the datasource of APIs for EDGAR.
 
----
+[→ Add API](#add-api)<br />
+[→ Check available APIs](./docs)<br />
+[→ Provide feedback](https://github.com/superfaceai/edgar-community/issues/new?template=FEEDBACK.md)
 
-## Adding your API
+## Add API
 
-We embrace new APIs being added to EDGAR! You can add your API by **opening a new pull request with the API documentation**.
+You can add an API by **opening a new pull request with the API documentation**. Upon review and merging, EDGAR will index the documentation and once ready, it will become available at [superface.ai/edgar](https://superface.ai/edgar)
 
-#### Format
+### API documentation format
 
-The expected format for the API documentation is **plain text**. Markdown is welcome but not required.
+The format for the API documentation is a **plain text**. Markdown is welcome but not required.
 
-The major part of formatting the docs is **using the separator**. The documentation conventionally consists of various topics, usually set apart by separate pages or big headings. They might be _authentication, rate limiting, general rules, API operations (sometimes grouped by resources)_.
+When formating the API documentation, it is important to **use the separator**. The documentation consists of various topics, divided by pages or headings. These includes _authentication, rate limiting, general instructions, API operations (often grouped by resources), and others_. When submitting the API docs, use the _the separator_ to split these topisc.
 
-It's highly recommended each of these topics (or chunks) is set apart in the docs provided for EDGAR, too. For that, we use _the separator_.
-
-The separator is a long `===========` ended with a newline. Technically 5 _equal_ characters are enough to form a separator. The API docs ready for EDGAR might look something like the following:
+The separator is a sequence of equal signs (`===========`) terminated by a newline. At minimum use 5 _equal_ (`=`) characters to form a separator. The API docs ready for EDGAR might look something like the following:
 
 ```
 # Welcome to our docs
@@ -42,8 +40,15 @@ This endpoint lists all items (...)
 (...)
 ```
 
-Entire documentation for an API provider is then stored in **a single `.txt` file in `docs` directory**.
+[Check existing APIs](./docs) for more examples.
 
-Then, open a pull request and wait for one of our reviewers to approve the new API. In the meantime, consider Starring the repo so that you don't miss new development.
+The entire API documentation is then stored in as a **single text `.txt` file in `docs` directory**.
 
-If you're unable to open a PR, you can also [suggest a new API](https://github.com/superfaceai/edgar-community/issues/new?template=NEW_API.yml).
+Opened pull request are usually reviewed in few hours. In the meantime, consider starring this repo so that you don't miss new development.
+
+If you don't want to submit an API docs on your own, feel free to [suggest a new API](https://github.com/superfaceai/edgar-community/issues/new?template=NEW_API.yml) and we will add it for you!
+
+
+
+
+
