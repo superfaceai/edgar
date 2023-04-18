@@ -1,0 +1,35 @@
+name: Suggest new API
+description: Request your favorite API to be added to EDGAR
+title: "[API REQUEST]: "
+labels: ["api-request"]
+body:
+  - type: input
+    id: docs-url
+    attributes:
+      label: Link to API Documentation
+      description: Where do we find the documentation for the API?
+      placeholder: e.g. https://stripe.com/docs/api
+    validations:
+      required: true
+  - type: textarea
+    id: usecase
+    attributes:
+      label: What are your usecases for this API?
+      description: What would you like to do with the API?
+      placeholder: e.g. refund a charge, create new payment link, ...
+    validations:
+      required: false
+  - type: dropdown
+    id: level
+    attributes:
+      label: What's your knowledge of this API?
+      options:
+        - I don't know much about this API
+        - I already consume this API
+        - I'm the API provider
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to improve EDGAR!

@@ -1,0 +1,1586 @@
+Authentication
+Authorization Header
+
+To authenticate, add an Authorization header to your API request that contains an API Key.
+
+API Keys
+
+SendGrid’s Web API v3 supports the use of API Keys. API Keys allow you to use another method of authentication separate from your account username and password. API Keys add an additional layer of security for your account and can be assigned specific permissions to limit which areas of your account they may be used to access. API Keys can be generated in your account. To use keys, you must set a plain text header named “Authorization” with the contents of the header being “Bearer XXX” where XXX is your API Secret Key.
+
+Example Header
+
+GET https://api.sendgrid.com/v3/resource HTTP/1.1
+Authorization: Bearer Your.API.Key-HERE
+curl -X "GET" "https://api.sendgrid.com/v3/templates" -H "Authorization: Bearer Your.API.Key-HERE" -H "Content-Type: application/json"
+
+================================================================================
+
+
+Authorization
+API Key Permissions List
+
+API Keys can be used to authenticate the use of SendGrid’s v3 Web API, or the Mail API endpoint. API Keys may be assigned certain permissions, or scopes, that limit which API endpoints they are able to access. For a more detailed explanation of how you can use API Key permissions, please visit our API Keys docs.
+
+The following is a complete list of all possible permissions that you may assign to an API Key.
+
+When updating a key to include user or subuser scopes, use basic authentication.
+Table of Contents
+
+Alerts	Mail Settings	Teammates
+API Keys	Mail	Templates
+ASM Groups	Marketing Campaigns	Suppressions
+Billing	Partner Settings	Tracking
+Categories	Scheduled Sends	User Settings
+Stats	Webhook	IPs
+Subusers	Domain Authentication	Reverse DNS
+Admin API Key Scopes
+Alerts
+
+"scopes": [
+  "alerts.create",
+  "alerts.delete",
+  "alerts.read",
+  "alerts.update"
+]
+
+
+API Keys
+
+"scopes": [
+  "api_keys.create",
+  "api_keys.delete",
+  "api_keys.read",
+  "api_keys.update"
+]
+
+
+ASM Groups
+
+"scopes": [
+  "asm.groups.create",
+  "asm.groups.delete",
+  "asm.groups.read",
+  "asm.groups.update"
+]
+
+
+Billing
+
+"scopes": [
+  "billing.create",
+  "billing.delete",
+  "billing.read",
+  "billing.update"
+]
+
+Billing permissions are mutually exclusive from all other permissions. An API Key can have either Billing Permissions or any other set of Permissions but not both.
+
+
+
+Categories
+
+"scopes": [
+  "categories.create",
+  "categories.delete",
+  "categories.read",
+  "categories.update",
+  "categories.stats.read",
+  "categories.stats.sums.read"
+]
+
+
+Stats
+
+"scopes": [
+  "email_activity.read",
+  "stats.read",
+  "stats.global.read",
+  "browsers.stats.read",
+  "devices.stats.read",
+  "geo.stats.read",
+  "mailbox_providers.stats.read",
+  "clients.desktop.stats.read",
+  "clients.phone.stats.read",
+  "clients.stats.read",
+  "clients.tablet.stats.read",
+  "clients.webmail.stats.read"
+]
+
+
+IPs
+
+"scopes": [
+  "ips.assigned.read",
+  "ips.read",
+  "ips.pools.create",
+  "ips.pools.delete",
+  "ips.pools.read",
+  "ips.pools.update",
+  "ips.pools.ips.create",
+  "ips.pools.ips.delete",
+  "ips.pools.ips.read",
+  "ips.pools.ips.update",
+  "ips.warmup.create",
+  "ips.warmup.delete",
+  "ips.warmup.read",
+  "ips.warmup.update"
+]
+
+
+Mail Settings
+
+"scopes": [
+  "mail_settings.address_whitelist.read",
+  "mail_settings.address_whitelist.update",
+  "mail_settings.bounce_purge.read",
+  "mail_settings.bounce_purge.update",
+  "mail_settings.footer.read",
+  "mail_settings.footer.update",
+  "mail_settings.forward_bounce.read",
+  "mail_settings.forward_bounce.update",
+  "mail_settings.forward_spam.read",
+  "mail_settings.forward_spam.update",
+  "mail_settings.template.read",
+  "mail_settings.template.update"
+]
+
+
+Mail
+
+"scopes": [
+  "mail.batch.create",
+  "mail.batch.delete",
+  "mail.batch.read",
+  "mail.batch.update",
+  "mail.send"
+]
+
+
+Marketing Campaigns
+
+"scopes": [
+  "marketing_campaigns.create",
+  "marketing_campaigns.delete",
+  "marketing_campaigns.read",
+  "marketing_campaigns.update"
+]
+
+
+Partner Settings
+
+"scopes": [
+  "partner_settings.new_relic.read",
+  "partner_settings.new_relic.update",
+  "partner_settings.read"
+]
+
+
+Scheduled Sends
+
+"scopes": [
+  "user.scheduled_sends.create",
+  "user.scheduled_sends.delete",
+  "user.scheduled_sends.read",
+  "user.scheduled_sends.update"
+]
+
+
+Subusers
+
+"scopes": [
+  "subusers.create",
+  "subusers.delete",
+  "subusers.read",
+  "subusers.update",
+  "subusers.credits.create",
+  "subusers.credits.delete",
+  "subusers.credits.read",
+  "subusers.credits.update",
+  "subusers.credits.remaining.create",
+  "subusers.credits.remaining.delete",
+  "subusers.credits.remaining.read",
+  "subusers.credits.remaining.update",
+  "subusers.monitor.create",
+  "subusers.monitor.delete",
+  "subusers.monitor.read",
+  "subusers.monitor.update",
+  "subusers.reputations.read",
+  "subusers.stats.read",
+  "subusers.stats.monthly.read",
+  "subusers.stats.sums.read"
+  "subusers.summary.read"
+]
+
+
+Suppressions
+
+"scopes": [
+  "suppression.create",
+  "suppression.delete",
+  "suppression.read",
+  "suppression.update",
+  "suppression.bounces.create",
+  "suppression.bounces.read",
+  "suppression.bounces.update",
+  "suppression.bounces.delete",
+  "suppression.blocks.create",
+  "suppression.blocks.read",
+  "suppression.blocks.update",
+  "suppression.blocks.delete",
+  "suppression.invalid_emails.create",
+  "suppression.invalid_emails.read",
+  "suppression.invalid_emails.update",
+  "suppression.invalid_emails.delete",
+  "suppression.spam_reports.create",
+  "suppression.spam_reports.read",
+  "suppression.spam_reports.update",
+  "suppression.spam_reports.delete",
+  "suppression.unsubscribes.create",
+  "suppression.unsubscribes.read",
+  "suppression.unsubscribes.update",
+  "suppression.unsubscribes.delete"
+]
+
+
+Teammates
+
+"scopes": [
+  "teammates.create",
+  "teammates.read",
+  "teammates.update",
+  "teammates.delete"
+]
+
+
+Templates
+
+"scopes": [
+  "templates.create",
+  "templates.delete",
+  "templates.read",
+  "templates.update",
+  "templates.versions.activate.create",
+  "templates.versions.activate.delete",
+  "templates.versions.activate.read",
+  "templates.versions.activate.update",
+  "templates.versions.create",
+  "templates.versions.delete",
+  "templates.versions.read",
+  "templates.versions.update"
+]
+
+
+Tracking
+
+"scopes": [
+  "tracking_settings.click.read",
+  "tracking_settings.click.update",
+  "tracking_settings.google_analytics.read",
+  "tracking_settings.google_analytics.update",
+  "tracking_settings.open.read",
+  "tracking_settings.open.update",
+  "tracking_settings.read",
+  "tracking_settings.subscription.read",
+  "tracking_settings.subscription.update"
+]
+
+
+User Settings
+
+"scopes": [
+  "user.account.read",
+  "user.credits.read",
+  "user.email.create",
+  "user.email.delete",
+  "user.email.read",
+  "user.email.update",
+  "user.multifactor_authentication.create",
+  "user.multifactor_authentication.delete",
+  "user.multifactor_authentication.read",
+  "user.multifactor_authentication.update",
+  "user.password.read",
+  "user.password.update",
+  "user.profile.read",
+  "user.profile.update",
+  "user.settings.enforced_tls.read",
+  "user.settings.enforced_tls.update",
+  "user.timezone.read",
+  "user.timezone.update",
+  "user.username.read",
+  "user.username.update"
+]
+
+
+Webhook
+
+"scopes": [
+  "user.webhooks.event.settings.read",
+  "user.webhooks.event.settings.update",
+  "user.webhooks.event.test.create",
+  "user.webhooks.event.test.read",
+  "user.webhooks.event.test.update",
+  "user.webhooks.parse.settings.create",
+  "user.webhooks.parse.settings.delete",
+  "user.webhooks.parse.settings.read",
+  "user.webhooks.parse.settings.update",
+  "user.webhooks.parse.stats.read"
+]
+
+
+Domain Authentication (formerly Whitelabel)
+
+"scopes": [
+  "whitelabel.create",
+  "whitelabel.delete",
+  "whitelabel.read",
+  "whitelabel.update"
+]
+
+
+Reverse DNS (formerly Whitelist)
+
+"scopes": [
+  "access_settings.activity.read",
+  "access_settings.whitelist.create",
+  "access_settings.whitelist.delete",
+  "access_settings.whitelist.read",
+  "access_settings.whitelist.update"
+]
+
+
+Admin API Key Scopes
+
+Below is a complete list of every API Key scope to be given to an admin level API Key.
+
+"scopes": [
+  "access_settings.activity.read",
+  "access_settings.whitelist.create",
+  "access_settings.whitelist.delete",
+  "access_settings.whitelist.read",
+  "access_settings.whitelist.update",
+  "alerts.create",
+  "alerts.delete",
+  "alerts.read",
+  "alerts.update",
+  "api_keys.create",
+  "api_keys.delete",
+  "api_keys.read",
+  "api_keys.update",
+  "asm.groups.create",
+  "asm.groups.delete",
+  "asm.groups.read",
+  "asm.groups.update",
+  "billing.create",
+  "billing.delete",
+  "billing.read",
+  "billing.update",
+  "browsers.stats.read",
+  "categories.create",
+  "categories.delete",
+  "categories.read",
+  "categories.stats.read",
+  "categories.stats.sums.read",
+  "categories.update",
+  "clients.desktop.stats.read",
+  "clients.phone.stats.read",
+  "clients.stats.read",
+  "clients.tablet.stats.read",
+  "clients.webmail.stats.read",
+  "devices.stats.read",
+  "email_activity.read",
+  "geo.stats.read",
+  "ips.assigned.read",
+  "ips.pools.create",
+  "ips.pools.delete",
+  "ips.pools.ips.create",
+  "ips.pools.ips.delete",
+  "ips.pools.ips.read",
+  "ips.pools.ips.update",
+  "ips.pools.read",
+  "ips.pools.update",
+  "ips.read",
+  "ips.warmup.create",
+  "ips.warmup.delete",
+  "ips.warmup.read",
+  "ips.warmup.update",
+  "mail_settings.address_whitelist.read",
+  "mail_settings.address_whitelist.update",
+  "mail_settings.bounce_purge.read",
+  "mail_settings.bounce_purge.update",
+  "mail_settings.footer.read",
+  "mail_settings.footer.update",
+  "mail_settings.forward_bounce.read",
+  "mail_settings.forward_bounce.update",
+  "mail_settings.forward_spam.read",
+  "mail_settings.forward_spam.update",
+  "mail_settings.plain_content.read",
+  "mail_settings.plain_content.update",
+  "mail_settings.read",,
+  "mail_settings.template.read",
+  "mail_settings.template.update",
+  "mail.batch.create",
+  "mail.batch.delete",
+  "mail.batch.read",
+  "mail.batch.update",
+  "mail.send",
+  "mailbox_providers.stats.read",
+  "marketing_campaigns.create",
+  "marketing_campaigns.delete",
+  "marketing_campaigns.read",
+  "marketing_campaigns.update",
+  "partner_settings.new_relic.read",
+  "partner_settings.new_relic.update",
+  "partner_settings.read",
+  "stats.global.read",
+  "stats.read",
+  "subusers.create",
+  "subusers.credits.create",
+  "subusers.credits.delete",
+  "subusers.credits.read",
+  "subusers.credits.remaining.create",
+  "subusers.credits.remaining.delete",
+  "subusers.credits.remaining.read",
+  "subusers.credits.remaining.update",
+  "subusers.credits.update",
+  "subusers.delete",
+  "subusers.monitor.create",
+  "subusers.monitor.delete",
+  "subusers.monitor.read",
+  "subusers.monitor.update",
+  "subusers.read",
+  "subusers.reputations.read",
+  "subusers.stats.monthly.read",
+  "subusers.stats.read",
+  "subusers.stats.sums.read",
+  "subusers.summary.read",
+  "subusers.update",
+  "suppression.blocks.create",
+  "suppression.blocks.delete",
+  "suppression.blocks.read",
+  "suppression.blocks.update",
+  "suppression.bounces.create",
+  "suppression.bounces.delete",
+  "suppression.bounces.read",
+  "suppression.bounces.update",
+  "suppression.create",
+  "suppression.delete",
+  "suppression.invalid_emails.create",
+  "suppression.invalid_emails.delete",
+  "suppression.invalid_emails.read",
+  "suppression.invalid_emails.update",
+  "suppression.read",
+  "suppression.spam_reports.create",
+  "suppression.spam_reports.delete",
+  "suppression.spam_reports.read",
+  "suppression.spam_reports.update",
+  "suppression.unsubscribes.create",
+  "suppression.unsubscribes.delete",
+  "suppression.unsubscribes.read",
+  "suppression.unsubscribes.update",
+  "suppression.update",
+  "teammates.create",
+  "teammates.read",
+  "teammates.update",
+  "teammates.delete",
+  "templates.create",
+  "templates.delete",
+  "templates.read",
+  "templates.update",
+  "templates.versions.activate.create",
+  "templates.versions.activate.delete",
+  "templates.versions.activate.read",
+  "templates.versions.activate.update",
+  "templates.versions.create",
+  "templates.versions.delete",
+  "templates.versions.read",
+  "templates.versions.update",
+  "tracking_settings.click.read",
+  "tracking_settings.click.update",
+  "tracking_settings.google_analytics.read",
+  "tracking_settings.google_analytics.update",
+  "tracking_settings.open.read",
+  "tracking_settings.open.update",
+  "tracking_settings.read",
+  "tracking_settings.subscription.read",
+  "tracking_settings.subscription.update",
+  "user.account.read",
+  "user.credits.read",
+  "user.email.create",
+  "user.email.delete",
+  "user.email.read",
+  "user.email.update",
+  "user.multifactor_authentication.create",
+  "user.multifactor_authentication.delete",
+  "user.multifactor_authentication.read",
+  "user.multifactor_authentication.update",
+  "user.password.read",
+  "user.password.update",
+  "user.profile.read",
+  "user.profile.update",
+  "user.scheduled_sends.create",
+  "user.scheduled_sends.delete",
+  "user.scheduled_sends.read",
+  "user.scheduled_sends.update",
+  "user.settings.enforced_tls.read",
+  "user.settings.enforced_tls.update",
+  "user.timezone.read",
+  "user.username.read",
+  "user.username.update",
+  "user.webhooks.event.settings.read",
+  "user.webhooks.event.settings.update",
+  "user.webhooks.event.test.create",
+  "user.webhooks.event.test.read",
+  "user.webhooks.event.test.update",
+  "user.webhooks.parse.settings.create",
+  "user.webhooks.parse.settings.delete",
+  "user.webhooks.parse.settings.read",
+  "user.webhooks.parse.settings.update",
+  "user.webhooks.parse.stats.read",
+  "whitelabel.create",
+  "whitelabel.delete",
+  "whitelabel.read",
+  "whitelabel.update"
+]
+
+
+================================================================================
+
+
+Pagination
+Some GET resources allow for retrieval of information in batches. We will provide the query args in the resource documentation when available to consume.
+When requesting multiple items, we will default the request limit to 500 items. You can specify a different limit but cannot exceed the default limit.
+Resources documented will display a bolded list of available paginated parameters if available.
+Below is a basic pagination example. In the resource documentation, we will only provide the bolded list of available parameters.
+A Link Header is provided in the response for batched information.
+GET https://api.sendgrid.com/v3/resource?limit=300&offset=10 HTTP/1.1
+Parameter	Description
+limit	The number of records to return
+offset	The number of records to skip
+Search & Parameters
+Some resources allow for you to search by a specific field. Other resources require you to append a parameter to the URI.
+In this example, we will display a paginated URI example, searching for resources where the email contains foo.
+GET https://api.sendgrid.com/v3/resource?email=foo&bar=baz HTTP/1.1
+Successful Requests
+
+================================================================================
+
+
+On Behalf of Subuser
+Use the on-behalf-of header to make calls for a particular subuser through the parent account. Use this header to automate bulk updates, or to administer a subuser without changing the authentication in your code.
+To use the feature, add the on-behalf-of header:
+on-behalf-of: << subuser username >>
+This header generates the API call as if the subuser account was making the call.
+When authenticating using the on-behalf-of header, you need to use the API key credentials of the parent account. For example:
+curl --request GET \
+  --url 'https://api.sendgrid.com/v3/stats?start_date=2018-02-01&aggregated_by=day' \
+  --header 'authorization: Bearer << API KEY >>' \
+  --header 'on-behalf-of: << subuser username >>'
+
+================================================================================
+
+Status Codes
+Below is a table containing descriptions of the various status codes we currently support against various resources.
+Status Code	Description
+200	No error
+201	Successfully created
+204	Successfully deleted
+400	Bad request
+401	Requires authentication
+403	From address doesn't match Verified Sender Identity. To learn how to resolve this error, see our Sender Identity requirements.
+406	Missing Accept header. For example: Accept: application/json
+429	Too many requests/Rate limit exceeded
+500	Internal server error
+Pagination
+When a request is made with a pagination query, the following data is included in the header to allow for easy traversal of previous, current, first, and last page of the data set.
+GET https://api.sendgrid.com/v3/resource?limit=5&offset=0 HTTP/1.1
+HTTP/1.1 200 OK
+Content-Type: application/json
+Link: <http://api.sendgrid.com/v3/resource?limit=5&offset=5>; rel="next"; title="2",
+      <http://api.sendgrid.com/v3/resource?limit=5&offset=0>; rel="prev"; title="1",
+      <http://api.sendgrid.com/v3/resource?limit=5&offset=10>; rel="last"; title="3",
+      <http://api.sendgrid.com/v3/resource?limit=5&offset=0>; rel="first"; tit
+
+================================================================================
+
+Rate Limits
+Rate Limit Response Header
+All calls within the Web API are allotted a specific number of requests per refresh period.
+Each Web API request returns the following header information regarding rate limits and number of requests left.
+Depending on the endpoint you are trying to reach, it will have a specific number of allowed requests per refresh period. Once this threshold has been reached, we will return a status code 429 response.
+
+Example
+GET https://api.sendgrid.com/v3/resource HTTP/1.1
+HTTP/1.1 200 OK
+Content-Type: application/json
+X-RateLimit-Limit: 500
+X-RateLimit-Remaining: 499
+X-RateLimit-Reset: 1392815263
+{
+  "foo": "bar"
+}
+When You Reach a Rate Limit
+
+You will no longer be able to make request against that endpoint for the duration of that refresh period.
+
+Example
+GET https://api.sendgrid.com/v3/resource/ HTTP/1.1
+HTTP/1.1 429 TOO MANY REQUESTS
+Content-Type: application/json
+X-RateLimit-Limit: 150
+X-RateLimit-Remaining: 0
+X-RateLimit-Reset: 1392815263
+
+{
+  "errors": [
+    {
+      "field": null,
+       "message": "too many requests"
+    },
+  ]
+}
+
+================================================================================
+
+
+Errors
+Sometimes your API call will generate an error. Here you will find additional information about what to expect if you don’t format your request properly, or we fail to properly process your request.
+
+Response Codes
+Status Code	Description
+400	Bad request
+401	Requires authentication
+406	Missing Accept header. For example: Accept: application/json
+429	Too many requests/Rate limit exceeded
+500	Internal server error
+Failed Requests
+The general format guidelines are displayed when the accompanying status code is returned.
+GET https://api.sendgrid.com/v3/resource HTTP/1.1
+HTTP/1.1 400 BAD REQUEST
+Content-Type: application/json
+{
+    "errors": [
+      {"field": "identifier1", "message": "error message explained"},
+      {"field": "identifier2", "message": "error message explained"},
+      {"field": "identifier3", "message": "error message explained"},
+    ]
+}
+
+================================================================================
+
+
+Mail Send
+POST /v3/mail/send
+Base url: https://api.sendgrid.com
+The Mail Send endpoint allows you to send email over SendGrid’s v3 Web API, the most recent version of our API. If you are looking for documentation about the v2 Mail Send endpoint, see our v2 API Reference.
+
+
+Dynamic Transactional Templates and Handlebars
+In order to send a dynamic template, specify the template ID with the template_id parameter in body.
+To specify handlebar substitutions, define your substitutions in the request JSON with this syntax:
+"dynamic_template_data": {
+      "guest": "Jane Doe",
+      "partysize": "4",
+      "english": true,
+      "date": "April 1st, 2021"
+    }
+
+Multiple Reply-To Emails
+Using reply_to_list allows senders to include more than one recipient email address to receive reply and/or bounce messages from the recipient of the email.
+Usage Considerations
+reply_to is mutually exclusive with reply_to_list. If both are used, then the API call will be rejected.
+The reply_to_list object, when used, must at least have an email parameter and may also contain a name parameter.
+Each email address in the reply_to_list should be unique.
+There is a limit of 1000 reply_to_list emails per mail/send request.
+In SMTP calls, we will omit any invalid emails.
+Possible 400 Error Messages
+reply_to is mutually exclusive with reply_to_list.
+The reply_to_list object, when used, must at least have an email parameter and may also contain a name parameter.
+Each email address in the reply_to_list should be unique.
+There is a limit of X reply_to emails per mail/send request.
+The reply_to_list email does not contain a valid address.
+The reply_to_list email exceeds the maximum total length of X characters.
+The reply_to_list email parameter is required.
+
+Authentication: API Key
+
+Headers
+Authorization
+string
+default: Bearer <<YOUR_API_KEY_HERE>>
+required
+
+
+Request Body
+example
+{
+  "personalizations": [
+    {
+      "to": [
+        {
+          "email": "john_doe@example.com",
+          "name": "John Doe"
+        },
+        {
+          "email": "julia_doe@example.com",
+          "name": "Julia Doe"
+        }
+      ],
+      "cc": [
+        {
+          "email": "jane_doe@example.com",
+          "name": "Jane Doe"
+        }
+      ],
+      "bcc": [
+        {
+          "email": "james_doe@example.com",
+          "name": "Jim Doe"
+        }
+      ]
+    },
+    {
+      "from": {
+        "email": "sales@example.com",
+        "name": "Example Sales Team"
+      },
+      "to": [
+        {
+          "email": "janice_doe@example.com",
+          "name": "Janice Doe"
+        }
+      ],
+      "bcc": [
+        {
+          "email": "jordan_doe@example.com",
+          "name": "Jordan Doe"
+        }
+      ]
+    }
+  ],
+  "from": {
+    "email": "orders@example.com",
+    "name": "Example Order Confirmation"
+  },
+  "reply_to": {
+    "email": "customer_service@example.com",
+    "name": "Example Customer Service Team"
+  },
+  "subject": "Your Example Order Confirmation",
+  "content": [
+    {
+      "type": "text/html",
+      "value": "<p>Hello from Twilio SendGrid!</p><p>Sending with the email service trusted by developers and marketers for <strong>time-savings</strong>, <strong>scalability</strong>, and <strong>delivery expertise</strong>.</p><p>%open-track%</p>"
+    }
+  ],
+  "attachments": [
+    {
+      "content": "PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImVuIj4KCiAgICA8aGVhZD4KICAgICAgICA8bWV0YSBjaGFyc2V0PSJVVEYtOCI+CiAgICAgICAgPG1ldGEgaHR0cC1lcXVpdj0iWC1VQS1Db21wYXRpYmxlIiBjb250ZW50PSJJRT1lZGdlIj4KICAgICAgICA8bWV0YSBuYW1lPSJ2aWV3cG9ydCIgY29udGVudD0id2lkdGg9ZGV2aWNlLXdpZHRoLCBpbml0aWFsLXNjYWxlPTEuMCI+CiAgICAgICAgPHRpdGxlPkRvY3VtZW50PC90aXRsZT4KICAgIDwvaGVhZD4KCiAgICA8Ym9keT4KCiAgICA8L2JvZHk+Cgo8L2h0bWw+Cg==",
+      "filename": "index.html",
+      "type": "text/html",
+      "disposition": "attachment"
+    }
+  ],
+  "categories": [
+    "cake",
+    "pie",
+    "baking"
+  ],
+  "send_at": 1617260400,
+  "batch_id": "AsdFgHjklQweRTYuIopzXcVBNm0aSDfGHjklmZcVbNMqWert1znmOP2asDFjkl",
+  "asm": {
+    "group_id": 12345,
+    "groups_to_display": [
+      12345
+    ]
+  },
+  "ip_pool_name": "transactional email",
+  "mail_settings": {
+    "bypass_list_management": {
+      "enable": false
+    },
+    "footer": {
+      "enable": false
+    },
+    "sandbox_mode": {
+      "enable": false
+    }
+  },
+  "tracking_settings": {
+    "click_tracking": {
+      "enable": true,
+      "enable_text": false
+    },
+    "open_tracking": {
+      "enable": true,
+      "substitution_tag": "%open-track%"
+    },
+    "subscription_tracking": {
+      "enable": false
+    }
+  }
+}
+
+Request schema
+object
+personalizations array
+An array of messages and their metadata. Each object within personalizations can be thought of as an envelope - it defines who should receive an individual message and how that message should be handled. See our Personalizations documentation for examples.
+maxItems: 1000
+required
+from object
+email
+string
+The 'From' email address used to deliver the message. This address should be a verified sender in your Twilio SendGrid account.
+format: email
+required
+name
+string
+A name or title associated with the sending email address.
+to
+array
+email
+string
+The intended recipient's email address.
+format: email
+name
+string
+The intended recipient's name.
+cc
+array
+An array of recipients who will receive a copy of your email. Each object in this array must contain the recipient's email address. Each object in the array may optionally contain the recipient's name.
+maxItems: 1000
+email
+string
+The intended recipient's email address.
+format: email
+name
+string
+The intended recipient's name.
+bcc
+array
+An array of recipients who will receive a blind carbon copy of your email. Each object in this array must contain the recipient's email address. Each object in the array may optionally contain the recipient's name.
+maxItems: 1000
+email
+string
+The intended recipient's email address.
+format: email
+name
+string
+The intended recipient's name.
+subject
+string
+The subject of your email. See character length requirements according to RFC 2822.
+minLength: 1
+
+headers
+object
+A collection of JSON key/value pairs allowing you to specify handling instructions for your email. You may not overwrite the following headers: x-sg-id, x-sg-eid, received, dkim-signature, Content-Type, Content-Transfer-Encoding, To, From, Subject, Reply-To, CC, BCC
+substitutions
+object
+Substitutions allow you to insert data without using Dynamic Transactional Templates. This field should not be used in combination with a Dynamic Transactional Template, which can be identified by a template_id starting with d-. This field is a collection of key/value pairs following the pattern "substitution_tag":"value to substitute". The key/value pairs must be strings. These substitutions will apply to the text and html content of the body of your email, in addition to the subject and reply-to parameters. The total collective size of your substitutions may not exceed 10,000 bytes per personalization object.
+dynamic_template_data
+object
+Dynamic template data is available using Handlebars syntax in Dynamic Transactional Templates. This field should be used in combination with a Dynamic Transactional Template, which can be identified by a template_id starting with d-. This field is a collection of key/value pairs following the pattern "variable_name":"value to insert".
+custom_args
+object
+Values that are specific to this personalization that will be carried along with the email and its activity data. Substitutions will not be made on custom arguments, so any string that is entered into this parameter will be assumed to be the custom argument that you would like to be used. This field may not exceed 10,000 bytes.
+send_at
+integer
+A unix timestamp allowing you to specify when your email should be delivered. Scheduling delivery more than 72 hours in advance is forbidden.
+
+from
+object
+required
+email
+string
+The 'From' email address used to deliver the message. This address should be a verified sender in your Twilio SendGrid account.
+format: email
+required
+name
+string
+A name or title associated with the sending email address.
+reply_to
+object
+email
+string
+The email address where any replies or bounces will be returned.
+format: email
+required
+name
+string
+A name or title associated with the reply_to email address.
+
+reply_to_list
+array
+An array of recipients who will receive replies and/or bounces. Each object in this array must contain the recipient's email address. Each object in the array may optionally contain the recipient's name. You can either choose to use “reply_to” field or “reply_to_list” but not both.
+maxItems: 1000
+uniqueItems: True
+email
+string
+The email address where any replies or bounces will be returned.
+format: email
+name
+string
+A name or title associated with the reply_to_list email address.
+subject
+string
+The global or 'message level' subject of your email. This may be overridden by subject lines set in personalizations.
+minLength: 1
+required
+
+content
+array
+An array where you can specify the content of your email. You can include multiple MIME types of content, but you must specify at least one MIME type. To include more than one MIME type, add another object to the array containing the type and value parameters.
+required
+type
+string
+The MIME type of the content you are including in your email (e.g., “text/plain” or “text/html”).
+minLength: 1
+value
+string
+The actual content of the specified MIME type that you are including in your email.
+minLength: 1
+
+attachments
+array
+An array of objects where you can specify any attachments you want to include.
+content
+string
+The Base64 encoded content of the attachment.
+minLength: 1
+type
+string
+The MIME type of the content you are attaching (e.g., “text/plain” or “text/html”).
+minLength: 1
+filename
+string
+The attachment's filename.
+disposition
+string
+The attachment's content-disposition, specifying how you would like the attachment to be displayed. For example, “inline” results in the attached file are displayed automatically within the message while “attachment” results in the attached file require some action to be taken before it is displayed, such as opening or downloading the file.
+default: attachment
+Allowed Values: inline, attachment
+content_id
+string
+The attachment's content ID. This is used when the disposition is set to “inline” and the attachment is an image, allowing the file to be displayed within the body of your email.
+template_id
+string
+An email template ID. A template that contains a subject and content — either text or html — will override any subject and content values specified at the personalizations or message level.
+headers
+object
+An object containing key/value pairs of header names and the value to substitute for them. The key/value pairs must be strings. You must ensure these are properly encoded if they contain unicode characters. These headers cannot be one of the reserved headers.
+categories
+
+array[string]
+An array of category names for this message. Each category name may not exceed 255 characters.
+maxItems: 10
+uniqueItems: True
+custom_args
+string
+Values that are specific to the entire send that will be carried along with the email and its activity data. Key/value pairs must be strings. Substitutions will not be made on custom arguments, so any string that is entered into this parameter will be assumed to be the custom argument that you would like to be used. This parameter is overridden by custom_args set at the personalizations level. Total custom_args size may not exceed 10,000 bytes.
+send_at
+integer
+A unix timestamp allowing you to specify when you want your email to be delivered. This may be overridden by the send_at parameter set at the personalizations level. Delivery cannot be scheduled more than 72 hours in advance. If you have the flexibility, it's better to schedule mail for off-peak times. Most emails are scheduled and sent at the top of the hour or half hour. Scheduling email to avoid peak times — for example, scheduling at 10:53 — can result in lower deferral rates due to the reduced traffic during off-peak times.
+batch_id
+string
+An ID representing a batch of emails to be sent at the same time. Including a batch_id in your request allows you include this email in that batch. It also enables you to cancel or pause the delivery of that batch. For more information, see the Cancel Scheduled Sends API.
+asm
+object
+An object allowing you to specify how to handle unsubscribes.
+group_id
+integer
+The unsubscribe group to associate with this email.
+required
+groups_to_display
+
+array[integer]
+An array containing the unsubscribe groups that you would like to be displayed on the unsubscribe preferences page.
+maxItems: 25
+ip_pool_name
+string
+The IP Pool that you would like to send this email from.
+maxLength: 64
+minLength: 2
+mail_settings
+object
+A collection of different mail settings that you can use to specify how you would like this email to be handled.
+bypass_list_management
+object
+Allows you to bypass all unsubscribe groups and suppressions to ensure that the email is delivered to every single recipient. This should only be used in emergencies when it is absolutely necessary that every recipient receives your email. This filter cannot be combined with any other bypass filters. See our documentation for more about bypass filters.
+enable
+boolean
+Indicates if this setting is enabled.
+bypass_spam_management
+object
+Allows you to bypass the spam report list to ensure that the email is delivered to recipients. Bounce and unsubscribe lists will still be checked; addresses on these other lists will not receive the message. This filter cannot be combined with the bypass_list_management filter. See our documentation for more about bypass filters.
+enable
+boolean
+Indicates if this setting is enabled.
+
+bypass_bounce_management
+object
+Allows you to bypass the bounce list to ensure that the email is delivered to recipients. Spam report and unsubscribe lists will still be checked; addresses on these other lists will not receive the message. This filter cannot be combined with the bypass_list_management filter. See our documentation for more about bypass filters.
+enable
+boolean
+Indicates if this setting is enabled.
+bypass_unsubscribe_management
+object
+Allows you to bypass the global unsubscribe list to ensure that the email is delivered to recipients. Bounce and spam report lists will still be checked; addresses on these other lists will not receive the message. This filter applies only to global unsubscribes and will not bypass group unsubscribes. This filter cannot be combined with the bypass_list_management filter. See our documentation for more about bypass filters.
+enable
+boolean
+Indicates if this setting is enabled.
+footer
+object
+The default footer that you would like included on every email.
+enable
+boolean
+Indicates if this setting is enabled.
+text
+string
+The plain text content of your footer.
+html
+string
+The HTML content of your footer.
+sandbox_mode
+object
+Sandbox Mode allows you to send a test email to ensure that your request body is valid and formatted correctly.
+enable
+boolean
+Indicates if this setting is enabled.
+
+tracking_settings
+object
+Settings to determine how you would like to track the metrics of how your recipients interact with your email.
+click_tracking
+object
+Allows you to track if a recipient clicked a link in your email.
+enable
+boolean
+Indicates if this setting is enabled.
+enable_text
+boolean
+Indicates if this setting should be included in the text/plain portion of your email.
+
+open_tracking
+object
+Allows you to track if the email was opened by including a single pixel image in the body of the content. When the pixel is loaded, Twilio SendGrid can log that the email was opened.
+enable
+boolean
+Indicates if this setting is enabled.
+substitution_tag
+string
+Allows you to specify a substitution tag that you can insert in the body of your email at a location that you desire. This tag will be replaced by the open tracking pixel.
+
+subscription_tracking
+object
+Allows you to insert a subscription management link at the bottom of the text and HTML bodies of your email. If you would like to specify the location of the link within your email, you may use the substitution_tag.
+enable
+boolean
+Indicates if this setting is enabled.
+text
+string
+Text to be appended to the email with the subscription tracking link. You may control where the link is by using the tag <% %>
+html
+string
+HTML to be appended to the email with the subscription tracking link. You may control where the link is by using the tag <% %>
+substitution_tag
+string
+A tag that will be replaced with the unsubscribe URL. for example: [unsubscribe_url]. If this parameter is used, it will override both the text and html parameters. The URL of the link will be placed at the substitution tag’s location with no additional formatting.
+
+ganalytics
+object
+Allows you to enable tracking provided by Google Analytics.
+enable
+boolean
+Indicates if this setting is enabled.
+utm_source
+string
+Name of the referrer source. (e.g. Google, SomeDomain.com, or Marketing Email)
+utm_medium
+string
+Name of the marketing medium. (e.g. Email)
+utm_term
+string
+Used to identify any paid keywords.
+utm_content
+string
+Used to differentiate your campaign from advertisements.
+utm_campaign
+string
+The name of the campaign.
+
+
+Responses 
+202 empty response body, example {}
+400
+401
+403
+404
+413
+500
+
+================================================================================
+
+Create a transactional template.
+POST /v3/templates
+Base url: https://api.sendgrid.com
+
+This endpoint allows you to create a transactional template.
+
+Authentication: API Key
+
+Headers
+Authorization
+string
+default: Bearer <<YOUR_API_KEY_HERE>>
+required
+
+on-behalf-of
+string
+default: The subuser's username. This header generates the API call as if the subuser account was making the call.
+
+
+Request Body
+example: {
+  "name": "example_name",
+  "generation": "dynamic"
+}
+schema:
+object
+name
+string
+The name for the new transactional template.
+maxLength: 100
+required
+generation
+string
+Defines whether the template supports dynamic replacement.
+default: legacy
+Allowed Values: legacy, dynamic
+
+
+Responses
+201: 
+object
+id
+string
+The ID of the transactional template.
+format: uuid
+maxLength: 36
+minLength: 36
+required
+name
+string
+The name for the transactional template.
+maxLength: 100
+required
+generation
+string
+Defines the generation of the template.
+Allowed Values: legacy, dynamic
+required
+updated_at
+string
+The date and time that this transactional template version was updated.
+pattern: ^(\d{4}-\d{2}-\d{2}) ((\d{2}):(\d{2}):(\d{2}))$
+required
+versions
+array
+The different versions of this transactional template.
+id
+string
+ID of the transactional template version.
+format: uuid
+template_id
+string
+ID of the transactional template.
+active
+integer
+Set the version as the active version associated with the template. Only one version of a template can be active. The first version created for a template will automatically be set to Active.
+Allowed Values: 0, 1
+name
+string
+Name of the transactional template version.
+maxLength: 100
+subject
+string
+Subject of the new transactional template version.
+maxLength: 255
+updated_at
+string
+The date and time that this transactional template version was updated.
+generate_plain_content
+boolean
+If true, plain_content is always generated from html_content. If false, plain_content is not altered.
+default: True
+editor
+string
+The editor used in the UI.
+Allowed Values: code, design
+thumbnail_url
+string
+A Thumbnail preview of the template's html content.
+warning
+object
+message
+string
+Warning message for the user
+
+curl -X POST "https://api.sendgrid.com/v3/templates" \
+--header "Authorization: Bearer <<YOUR_API_KEY_HERE>>" \
+--header "on-behalf-of: The subuser's username. This header generates the API call as if the subuser account was making the call." \
+--header "Content-Type: application/json" \
+--data '{"name": "example_name", "generation": "dynamic"}'
+
+
+================================================================================
+
+
+Edit a transactional template.
+PATCH /v3/templates/{template_id}
+Base url: https://api.sendgrid.com
+
+This endpoint allows you to edit the name of a transactional template.
+
+To edit the template itself, create a new transactional template version.
+
+Authentication API Key
+
+
+Headers
+
+Authorization
+string
+default: Bearer <<YOUR_API_KEY_HERE>>
+required
+on-behalf-of
+string
+default: The subuser's username. This header generates the API call as if the subuser account was making the call.
+
+
+Request Body
+object
+name
+string
+The name of the transactional template.
+maxLength: 100
+Path Parameters
+Schema
+template_id
+string
+default: None
+required
+
+Responses
+200:
+object
+id
+string
+The ID of the transactional template.
+format: uuid
+maxLength: 36
+minLength: 36
+required
+name
+string
+The name for the transactional template.
+maxLength: 100
+required
+generation
+string
+Defines the generation of the template.
+Allowed Values: legacy, dynamic
+required
+updated_at
+string
+The date and time that this transactional template version was updated.
+pattern: ^(\d{4}-\d{2}-\d{2}) ((\d{2}):(\d{2}):(\d{2}))$
+required
+versions
+array
+The different versions of this transactional template.
+id
+string
+ID of the transactional template version.
+format: uuid
+template_id
+string
+ID of the transactional template.
+active
+integer
+Set the version as the active version associated with the template. Only one version of a template can be active. The first version created for a template will automatically be set to Active.
+Allowed Values: 0, 1
+name
+string
+Name of the transactional template version.
+maxLength: 100
+subject
+string
+Subject of the new transactional template version.
+maxLength: 255
+updated_at
+string
+The date and time that this transactional template version was updated.
+generate_plain_content
+boolean
+If true, plain_content is always generated from html_content. If false, plain_content is not altered.
+default: True
+editor
+string
+The editor used in the UI.
+Allowed Values: code, design
+thumbnail_url
+string
+A Thumbnail preview of the template's html content.
+warning
+object
+message
+string
+Warning message for the user
+
+
+response example
+{
+  "id": "0c314114-a2b7-4523-8cbc-a293d7d19007",
+  "name": "example_name",
+  "updated_at ": "2021-04-28 13:12:46",
+  "warning": {
+    "message": "Sample warning message"
+  },
+  "generation": "legacy",
+  "versions": []
+}
+
+================================================================================
+
+
+Retrieve paged transactional templates.
+GET /v3/templates
+Base url: https://api.sendgrid.com
+
+This endpoint allows you to retrieve all transactional templates.
+
+Authentication API Key
+
+
+Headers
+Authorization
+string
+default: Bearer <<YOUR_API_KEY_HERE>>
+required
+on-behalf-of
+string
+default: The subuser's username. This header generates the API call as if the subuser account was making the call.
+
+
+Query String
+generations
+string
+Comma-delimited list specifying which generations of templates to return. Options are legacy, dynamic or legacy,dynamic.
+default: legacy
+page_size
+number
+The number of templates to be returned in each page of results
+default: None
+required
+page_token
+string
+A token corresponding to a specific page of results, as provided by metadata
+default: None
+
+
+Responses
+200:
+object
+result
+array
+id
+string
+The ID of the transactional template.
+format: uuid
+maxLength: 36
+minLength: 36
+name
+string
+The name for the transactional template.
+maxLength: 100
+generation
+string
+Defines the generation of the template.
+Allowed Values: legacy, dynamic
+updated_at
+string
+The date and time that this transactional template version was updated.
+pattern: ^(\d{4}-\d{2}-\d{2}) ((\d{2}):(\d{2}):(\d{2}))$
+versions
+array
+The different versions of this transactional template.
+id
+string
+ID of the transactional template version.
+format: uuid
+template_id
+string
+ID of the transactional template.
+active
+integer
+Set the version as the active version associated with the template. Only one version of a template can be active. The first version created for a template will automatically be set to Active.
+Allowed Values: 0, 1
+name
+string
+Name of the transactional template version.
+maxLength: 100
+subject
+string
+Subject of the new transactional template version.
+maxLength: 255
+updated_at
+string
+The date and time that this transactional template version was updated.
+generate_plain_content
+boolean
+If true, plain_content is always generated from html_content. If false, plain_content is not altered.
+default: True
+editor
+string
+The editor used in the UI.
+Allowed Values: code, design
+thumbnail_url
+string
+A Thumbnail preview of the template's html content.
+_metadata
+object
+prev
+string
+format: uri
+self
+string
+format: uri
+next
+string
+format: uri
+count
+integer
+minimum: 0
+
+curl -G -X GET "https://api.sendgrid.com/v3/templates" \
+--header "Authorization: Bearer <<YOUR_API_KEY_HERE>>" \
+--header "on-behalf-of: The subuser's username. This header generates the API call as if the subuser account was making the call." \
+--data-urlencode "generations=legacy" \
+--data-urlencode "page_size=18"
+
+400:
+
+object
+errors
+array
+string
+message
+string
+error_id
+string
+
+
+================================================================================
+
+Retrieve a single transactional template.
+GET /v3/templates/{template_id}
+Base url: https://api.sendgrid.com
+
+This endpoint allows you to retrieve a single transactional template.
+
+Authentication API Key
+
+
+Headers
+
+Schema
+Authorization
+string
+default: Bearer <<YOUR_API_KEY_HERE>>
+required
+on-behalf-of
+string
+default: The subuser's username. This header generates the API call as if the subuser account was making the call.
+
+
+Path Parameters
+
+Schema
+template_id
+string
+default: None
+required
+
+
+Responses
+200:
+object
+id
+string
+The ID of the transactional template.
+format: uuid
+maxLength: 36
+minLength: 36
+required
+name
+string
+The name for the transactional template.
+maxLength: 100
+required
+generation
+string
+Defines the generation of the template.
+Allowed Values: legacy, dynamic
+required
+updated_at
+string
+The date and time that this transactional template version was updated.
+pattern: ^(\d{4}-\d{2}-\d{2}) ((\d{2}):(\d{2}):(\d{2}))$
+required
+versions
+array
+The different versions of this transactional template.
+id
+string
+ID of the transactional template version.
+format: uuid
+template_id
+string
+ID of the transactional template.
+active
+integer
+Set the version as the active version associated with the template. Only one version of a template can be active. The first version created for a template will automatically be set to Active.
+Allowed Values: 0, 1
+name
+string
+Name of the transactional template version.
+maxLength: 100
+subject
+string
+Subject of the new transactional template version.
+maxLength: 255
+updated_at
+string
+The date and time that this transactional template version was updated.
+generate_plain_content
+boolean
+If true, plain_content is always generated from html_content. If false, plain_content is not altered.
+default: True
+editor
+string
+The editor used in the UI.
+Allowed Values: code, design
+thumbnail_url
+string
+A Thumbnail preview of the template's html content.
+warning
+object
+message
+string
+Warning message for the user
+
+curl -X GET "https://api.sendgrid.com/v3/templates/ZGkrHSypTsudrGkmdpJJ" \
+--header "Authorization: Bearer <<YOUR_API_KEY_HERE>>" \
+--header "on-behalf-of: The subuser's username. This header generates the API call as if the subuser account was making the call."
+
+================================================================================

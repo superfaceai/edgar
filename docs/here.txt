@@ -1,0 +1,5382 @@
+Authentication
+
+ApiKey in query
+A key generated specifically to authenticate API requests. For more information on how to get an API key, see the Identity & Access Management Guide.
+Security Scheme Type	API Key
+Query parameter name:	apiKey
+
+================================================================================
+Geocode
+GET
+/v1/geocode
+https://geocode.search.hereapi.com/v1/geocode
+This endpoint allows to find the geo-coordinates of a known address, place, locality or administrative area, even if the query is incomplete or partly incorrect. It also returns a complete postal address string and address details. It supports structured, unstructured and hybrid queries - combinations of structured and unstructured query elements.
+
+QUERY PARAMETERS
+apiKey
+string
+A key generated specifically to authenticate API requests. For more information on how to get an API key, see the Identity & Access Management Guide.
+at	
+string
+Specify the center of the search context expressed as coordinates.
+Format: {latitude},{longitude}
+Type: {decimal},{decimal}
+Example: -13.163068,-72.545128 (Machu Picchu Mountain, Peru)
+in	
+string
+Search within a geographic area. This is a hard filter. Results will be returned if they are located within the specified area.
+A geographic area can be
+a country (or multiple countries), provided as comma-separated ISO 3166-1 alpha-3 country codes
+The country codes are to be provided in all uppercase.
+Format: countryCode:{countryCode}[,{countryCode}]*
+Examples:
+countryCode:USA
+countryCode:CAN,MEX,USA
+limit	
+integer <int32> [ 1 .. 100 ]
+Default: 20
+Maximum number of results to be returned.
+q	
+string
+Example: q=Invalidenstraße 116 Berlin
+Enter a free-text query
+Examples:
+125, Berliner, berlin
+Beacon, Boston, Hospital
+Schnurrbart German Pub and Restaurant, Hong Kong
+Note: Either q or qq-parameter is required on this endpoint. Both parameters can be provided in the same request.
+qq	
+string
+Enter a qualified query. A qualified query is similar to a free-text query, but in a structured manner. It can take multiple sub-parameters, separated by semicolon, allowing to specify different aspects of a query.
+Currently supported sub-parameters are country, state, county, city, district, street, houseNumber, and postalCode.
+Format: {sub-parameter}={string}[;{sub-parameter}={string}]*
+Examples:
+city=Berlin;country=Germany;street=Friedrichstr;houseNumber=20
+city=Berlin;country=Germany
+postalCode=10969
+Note: Either q or qq-parameter is required on this endpoint. Both parameters can be provided in the same request.
+lang	
+Array of strings
+Select the language to be used for result rendering from a list of BCP 47 compliant language codes.
+politicalView	
+string
+Toggle the political view.
+This parameter accepts single ISO 3166-1 alpha-3 country code. The country codes are to be provided in all uppercase.
+For any valid 3 letter country code, for which GS7 does not have dedicated political view, it falls back to the default view.
+For not accepted values of the politicalView parameter the GS7 responds with "400" error code.
+Currently the only supported political views are:
+ARG: Argentina view on Southern Patagonian Ice Field and Tierra Del Fuego, including Falkland Islands, South Georgia and South Sandwich Islands
+EGY: Egypt view on Bir Tawil
+IND: Indian View on Gilgit-Baltistan
+KEN: Kenya view on Ilemi Triangle
+MAR: expressing the Moroccan view on Western Sahara
+PAK: Pakistan View on Jammu and Kashmir and Junagadh Area
+RUS: expressing the Russian view on Crimea
+SDN: Sudan view on Halaib Triangle
+SRB: expressing the Serbian view on Kosovo, Vukovar and Sarengrad Islands
+SUR: Suriname view on Courantyne Headwaters and Lawa Headwaters
+SYR: Syria view on Golan Heights
+TUR: Turkish view on Cyprus and Northern Cyprus
+TZA: Tanzania view on Lake Malawi
+URY: Uruguay view on Rincon de Artigas
+show	
+Array of strings
+Items Enum: "countryInfo" "parsing" "streetInfo" "tz"
+Select additional fields to be rendered in the response. Please note that some of the fields involve additional webservice calls and can increase the overall response time.
+The value is a comma-separated list of the sections to be enabled. For some sections there is a long and a short ID.
+Description of supported values:
+countryInfo: For each result item renders additional block with the country info, such as ISO 3166-1 alpha-2 and ISO 3166-1 alpha-3 country code.
+streetInfo: For each result item renders additional block with the street name decomposed into its parts like the base name, the street type, etc.
+tz: Renders result items with additional time zone information. Please note that this may impact latency significantly.
+BETA parsing
+
+
+HEADER PARAMETERS
+X-Request-ID	
+string
+Used to correlate requests with their responses within a customer's application, for logging and error reporting.
+Format: Free string, but a valid UUIDv4 is recommended.
+
+
+Responses
+200 The search results.
+RESPONSE SCHEMA: application/json
+
+items
+required
+Array of objects
+The results are presented as a JSON list of candidates in ranked order (most-likely to least-likely) based on the matched location criteria.
+Array ()
+
+
+title
+required
+string
+The localized display name of this result item.
+id
+required
+string
+The unique identifier for the result item. This ID can be used for a Look Up by ID search as well.
+politicalView	
+string
+ISO3 country code of the item political view (default for international). This response element is populated when the politicalView parameter is set in the query
+resultType	
+string
+Enum: "administrativeArea" "locality" "street" "intersection" "addressBlock" "houseNumber" "postalCodePoint" "place"
+houseNumberType	
+string
+Enum: "PA" "interpolated"
+PA - a Point Address represents an individual address as a point object. Point Addresses are coming from trusted sources. We can say with high certainty that the address exists and at what position. A Point Address result contains two types of coordinates. One is the access point (or navigation coordinates), which is the point to start or end a drive. The other point is the position or display point. This point varies per source and country. The point can be the rooftop point, a point close to the building entry, or a point close to the building, driveway or parking lot that belongs to the building.
+interpolated - an interpolated address. These are approximate positions as a result of a linear interpolation based on address ranges. Address ranges, especially in the USA, are typical per block. For interpolated addresses, we cannot say with confidence that the address exists in reality. But the interpolation provides a good location approximation that brings people in most use cases close to the target location. The access point of an interpolated address result is calculated based on the address range and the road geometry. The position (display) point is pre-configured offset from the street geometry. Compared to Point Addresses, interpolated addresses are less accurate.
+addressBlockType	
+string
+Enum: "block" "subblock"
+localityType	
+string
+Enum: "postalCode" "subdistrict" "district" "city"
+administrativeAreaType	
+string
+Enum: "county" "state" "country"
+
+
+address
+required
+object
+Postal address of the result item.
+
+label	
+string
+Assembled address value built out of the address components according to the regional postal rules. These are the same rules for all endpoints. It may not include all the input terms. For example: "Schulstraße 4, 32547 Bad Oeynhausen, Germany"
+
+countryCode	
+string
+A three-letter country code. For example: "DEU"
+
+countryName	
+string
+The localised country name. For example: "Deutschland"
+
+stateCode	
+string
+A state code or state name abbreviation – country specific. For example, in the United States it is the two letter state abbreviation: "CA" for California.
+
+state	
+string
+The state division of a country. For example: "North Rhine-Westphalia"
+
+countyCode	
+string
+A county code or county name abbreviation – country specific. For example, for Italy it is the province abbreviation: "RM" for Rome.
+
+county	
+string
+A division of a state; typically, a secondary-level administrative division of a country or equivalent.
+
+city	
+string
+The name of the primary locality of the place. For example: "Bad Oyenhausen"
+
+district	
+string
+A division of city; typically an administrative unit within a larger city or a customary name of a city's neighborhood. For example: "Bad Oyenhausen"
+
+subdistrict	
+string
+A subdivision of a district. For example: "Minden-Lübbecke"
+
+street	
+string
+Name of street. For example: "Schulstrasse"
+
+block	
+string
+Name of block.
+
+subblock	
+string
+Name of sub-block.
+
+postalCode	
+string
+An alphanumeric string included in a postal address to facilitate mail sorting, such as post code, postcode, or ZIP code. For example: "32547"
+
+houseNumber	
+string
+House number. For example: "4"
+
+building	
+string
+Name of building.
+
+
+position	
+object
+The coordinates (latitude, longitude) of a pin on a map corresponding to the searched place.
+
+lat
+required
+number <double>
+
+Latitude of the address. For example: "52.19404"
+lng
+required
+number <double>
+Longitude of the address. For example: "8.80135"
+
+access	
+Array of objects
+Coordinates of the place you are navigating to (for example, driving or walking). This is a point on a road or in a parking lot.
+Array ()
+lat
+required
+number <double>
+Latitude of the address. For example: "52.19404"
+lng
+required
+number <double>
+Longitude of the address. For example: "8.80135"
+distance	
+integer <int64>
+The distance "as the crow flies" from the search center to this result item in meters. For example: "172039".
+When searching along a route this is the distance along the route plus the distance from the route polyline to this result item.
+
+
+mapView	
+object
+The bounding box enclosing the geometric shape (area or line) that an individual result covers. place typed results have no mapView.
+west
+required
+number <double>
+Longitude of the western-side of the box. For example: "8.80068"
+south
+required
+number <double>
+Latitude of the southern-side of the box. For example: "52.19333"
+east
+required
+number <double>
+Longitude of the eastern-side of the box. For example: "8.8167"
+north
+required
+number <double>
+Latitude of the northern-side of the box. For example: "52.19555"
+
+
+categories	
+Array of objects
+The list of categories assigned to this place.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+
+
+foodTypes	
+Array of objects
+The list of food types assigned to this place.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+houseNumberFallback	
+boolean
+If true, indicates that the requested house number was corrected to match the nearest known house number. This field is visible only when the value is true.
+
+
+timeZone	
+object
+Provides time zone information for this place. (rendered only if 'show=tz' is provided.)
+name
+required
+string
+The name of the time zone as defined in the tz database. For example: "Europe/Berlin"
+utcOffset
+required
+string
+The UTC offset for this time zone at request time. For example "+02:00"
+
+
+scoring	
+object
+Indicates for each result how good the result matches to the original query. This can be used by the customer application to accept or reject the results depending on how "expensive" is the mistake for their use case
+queryScore	
+number <double>
+Indicates how good the input matches the returned address. It is equal to 1 if all input tokens are recognized and matched.
+fieldScore	
+
+
+object
+Indicates how good the individual result fields match to the corresponding part of the query. Is included only for the result fields that are actually matched to the query.
+country	
+number <double>
+Indicates how good the result country name or [ISO 3166-1 alpha-3] country code matches to the freeform or qualified input.
+countryCode	
+number <double>
+Indicates how good the result [ISO 3166-1 alpha-3] country code matches to the freeform or qualified input.
+state	
+number <double>
+Indicates how good the result state name matches to the freeform or qualified input.
+stateCode	
+number <double>
+Indicates how good the result state code matches to the freeform or qualified input.
+county	
+number <double>
+Indicates how good the result county name matches to the freeform or qualified input.
+countyCode	
+number <double>
+Indicates how good the result county code matches to the freeform or qualified input.
+city	
+number <double>
+Indicates how good the result city name matches to the freeform or qualified input.
+district	
+number <double>
+Indicates how good the result district name matches to the freeform or qualified input.
+subdistrict	
+number <double>
+Indicates how good the result sub-district name matches to the freeform or qualified input.
+
+
+streets	
+Array of numbers <double>
+Indicates how good the result street names match to the freeform or qualified input. If the input contains multiple street names, the field score is calculated and returned for each of them individually.
+block	
+number <double>
+Indicates how good the result block name matches to the freeform or qualified input.
+subblock	
+number <double>
+Indicates how good the result sub-block name matches to the freeform or qualified input.
+houseNumber	
+number <double>
+Indicates how good the result house number matches to the freeform or qualified input. It may happen, that the house number, which one is looking for, is not yet in the map data. For such cases, the /geocode returns the nearest known house number on the same street. This represents the numeric difference between the requested and the returned house numbers.
+postalCode	
+number <double>
+Indicates how good the result postal code matches to the freeform or qualified input.
+building	
+number <double>
+Indicates how good the result building name matches to the freeform or qualified input.
+unit	
+number <double>
+Indicates how good the result unit (such as a micro point address) matches to the freeform or qualified input.
+placeName	
+number <double>
+Indicates how good the result place name matches to the freeform or qualified input.
+ontologyName	
+number <double>
+Indicates how good the result ontology name matches to the freeform or qualified input.
+parsing	
+object
+BETA Parsed terms and their positions in the input query (only rendered if 'show=parsing' is provided.)
+
+
+placeName	
+Array of objects
+Place name matches
+Array ()
+start
+required
+integer <int32>
+First index of the matched range (0-based indexing, inclusive)
+end
+required
+integer <int32>
+One past the last index of the matched range (0-based indexing, exclusive); The difference between end and start gives the length of the term
+value
+required
+string
+Matched term in the input string
+qq	
+string
+Enum: "country" "state" "county" "city" "district" "street" "houseNumber" "postalCode"
+The matched qualified query field type. If this is not returned, then matched value refers to the freetext query
+
+
+country	
+Array of objects
+Country matches
+Array ()
+start
+required
+integer <int32>
+First index of the matched range (0-based indexing, inclusive)
+end
+required
+integer <int32>
+One past the last index of the matched range (0-based indexing, exclusive); The difference between end and start gives the length of the term
+value
+required
+string
+Matched term in the input string
+qq	
+string
+Enum: "country" "state" "county" "city" "district" "street" "houseNumber" "postalCode"
+The matched qualified query field type. If this is not returned, then matched value refers to the freetext query
+
+
+state	
+Array of objects
+State matches
+Array ()
+start
+required
+integer <int32>
+First index of the matched range (0-based indexing, inclusive)
+end
+required
+integer <int32>
+One past the last index of the matched range (0-based indexing, exclusive); The difference between end and start gives the length of the term
+value
+required
+string
+Matched term in the input string
+qq	
+string
+Enum: "country" "state" "county" "city" "district" "street" "houseNumber" "postalCode"
+The matched qualified query field type. If this is not returned, then matched value refers to the freetext query
+
+
+county	
+Array of objects
+County matches
+Array ()
+start
+required
+integer <int32>
+First index of the matched range (0-based indexing, inclusive)
+end
+required
+integer <int32>
+One past the last index of the matched range (0-based indexing, exclusive); The difference between end and start gives the length of the term
+value
+required
+string
+Matched term in the input string
+qq	
+string
+Enum: "country" "state" "county" "city" "district" "street" "houseNumber" "postalCode"
+The matched qualified query field type. If this is not returned, then matched value refers to the freetext query
+
+
+city	
+Array of objects
+City matches
+Array ()
+start
+required
+integer <int32>
+First index of the matched range (0-based indexing, inclusive)
+end
+required
+integer <int32>
+One past the last index of the matched range (0-based indexing, exclusive); The difference between end and start gives the length of the term
+value
+required
+string
+Matched term in the input string
+qq	
+string
+Enum: "country" "state" "county" "city" "district" "street" "houseNumber" "postalCode"
+The matched qualified query field type. If this is not returned, then matched value refers to the freetext query
+
+
+district	
+Array of objects
+District matches
+Array ()
+start
+required
+integer <int32>
+First index of the matched range (0-based indexing, inclusive)
+end
+required
+integer <int32>
+One past the last index of the matched range (0-based indexing, exclusive); The difference between end and start gives the length of the term
+value
+required
+string
+Matched term in the input string
+qq	
+string
+Enum: "country" "state" "county" "city" "district" "street" "houseNumber" "postalCode"
+The matched qualified query field type. If this is not returned, then matched value refers to the freetext query
+
+
+subdistrict	
+Array of objects
+Subdistrict matches
+Array ()
+start
+required
+integer <int32>
+First index of the matched range (0-based indexing, inclusive)
+end
+required
+integer <int32>
+One past the last index of the matched range (0-based indexing, exclusive); The difference between end and start gives the length of the term
+value
+required
+string
+Matched term in the input string
+qq	
+string
+Enum: "country" "state" "county" "city" "district" "street" "houseNumber" "postalCode"
+The matched qualified query field type. If this is not returned, then matched value refers to the freetext query
+
+
+street	
+Array of objects
+Street matches
+Array ()
+start
+required
+integer <int32>
+First index of the matched range (0-based indexing, inclusive)
+end
+required
+integer <int32>
+One past the last index of the matched range (0-based indexing, exclusive); The difference between end and start gives the length of the term
+value
+required
+string
+Matched term in the input string
+qq	
+string
+Enum: "country" "state" "county" "city" "district" "street" "houseNumber" "postalCode"
+The matched qualified query field type. If this is not returned, then matched value refers to the freetext query
+
+
+block	
+Array of objects
+Block matches
+Array ()
+start
+required
+integer <int32>
+First index of the matched range (0-based indexing, inclusive)
+end
+required
+integer <int32>
+One past the last index of the matched range (0-based indexing, exclusive); The difference between end and start gives the length of the term
+value
+required
+string
+Matched term in the input string
+qq	
+string
+Enum: "country" "state" "county" "city" "district" "street" "houseNumber" "postalCode"
+The matched qualified query field type. If this is not returned, then matched value refers to the freetext query
+
+
+subblock	
+Array of objects
+Subblock matches
+Array ()
+start
+required
+integer <int32>
+First index of the matched range (0-based indexing, inclusive)
+end
+required
+integer <int32>
+One past the last index of the matched range (0-based indexing, exclusive); The difference between end and start gives the length of the term
+value
+required
+string
+Matched term in the input string
+qq	
+string
+Enum: "country" "state" "county" "city" "district" "street" "houseNumber" "postalCode"
+The matched qualified query field type. If this is not returned, then matched value refers to the freetext query
+houseNumber	
+Array of objects
+HouseNumber matches
+Array ()
+start
+required
+integer <int32>
+First index of the matched range (0-based indexing, inclusive)
+end
+required
+integer <int32>
+One past the last index of the matched range (0-based indexing, exclusive); The difference between end and start gives the length of the term
+value
+required
+string
+Matched term in the input string
+qq	
+string
+Enum: "country" "state" "county" "city" "district" "street" "houseNumber" "postalCode"
+The matched qualified query field type. If this is not returned, then matched value refers to the freetext query
+
+
+postalCode	
+Array of objects
+PostalCode matches
+Array ()
+start
+required
+integer <int32>
+First index of the matched range (0-based indexing, inclusive)
+end
+required
+integer <int32>
+One past the last index of the matched range (0-based indexing, exclusive); The difference between end and start gives the length of the term
+value
+required
+string
+Matched term in the input string
+qq	
+string
+Enum: "country" "state" "county" "city" "district" "street" "houseNumber" "postalCode"
+The matched qualified query field type. If this is not returned, then matched value refers to the freetext query
+building	
+Array of objects
+Building matches
+Array ()
+start
+required
+integer <int32>
+First index of the matched range (0-based indexing, inclusive)
+end
+required
+integer <int32>
+One past the last index of the matched range (0-based indexing, exclusive); The difference between end and start gives the length of the term
+value
+required
+string
+Matched term in the input string
+qq	
+string
+Enum: "country" "state" "county" "city" "district" "street" "houseNumber" "postalCode"
+The matched qualified query field type. If this is not returned, then matched value refers to the freetext query
+secondaryUnits	
+Array of objects
+secondaryUnits matches
+Array ()
+start
+required
+integer <int32>
+First index of the matched range (0-based indexing, inclusive)
+end
+required
+integer <int32>
+One past the last index of the matched range (0-based indexing, exclusive); The difference between end and start gives the length of the term
+value
+required
+string
+Matched term in the input string
+qq	
+string
+Enum: "country" "state" "county" "city" "district" "street" "houseNumber" "postalCode"
+The matched qualified query field type. If this is not returned, then matched value refers to the freetext query
+
+ontologyName	
+Array of objects
+Ontology name matches
+Array ()
+start
+required
+integer <int32>
+First index of the matched range (0-based indexing, inclusive)
+end
+required
+integer <int32>
+One past the last index of the matched range (0-based indexing, exclusive); The difference between end and start gives the length of the term
+value
+required
+string
+Matched term in the input string
+qq	
+string
+Enum: "country" "state" "county" "city" "district" "street" "houseNumber" "postalCode"
+The matched qualified query field type. If this is not returned, then matched value refers to the freetext query
+
+
+streetInfo	
+Array of objects
+Street Details (only rendered if 'show=streetInfo' is provided.)
+Array ()
+baseName	
+string
+Base name part of the street name.
+streetType	
+string
+Street type part of the street name.
+streetTypePrecedes	
+boolean
+Defines if the street type is before or after the base name.
+streetTypeAttached	
+boolean
+Defines if the street type is attached or unattached to the base name.
+prefix	
+string
+A prefix is a directional identifier that precedes, but is not included in, the base name of a road.
+suffix	
+string
+A suffix is a directional identifier that follows, but is not included in, the base name of a road.
+direction	
+string
+Indicates the official directional identifiers assigned to highways, typically either "North/South" or "East/West"
+language	
+string
+BCP 47 compliant language code
+countryInfo	
+object
+Country Details (only rendered if 'show=countryInfo' is provided.)
+alpha2	
+string
+ISO 3166-1 alpha-2 country code
+alpha3	
+string
+ISO 3166-1 alpha-3 country code
+
+
+400 Client error: request failed validation.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+
+
+405 Client error: http method not supported.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+
+
+429 Client error: Rate limit exceeded.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+
+
+503 Temporary server error.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+
+
+================================================================================
+Discover
+GET
+/v1/discover
+https://discover.search.hereapi.com/v1/discover
+This endpoint processes a free-form text query for an address or place, and returns results in order of relevance.
+
+QUERY PARAMETERS
+apiKey
+string
+A key generated specifically to authenticate API requests. For more information on how to get an API key, see the Identity & Access Management Guide.
+q
+required
+string
+Example: q=Eismieze Berlin
+Enter a free-text query
+Examples:
+125, Berliner, berlin
+Beacon, Boston, Hospital
+Schnurrbart German Pub and Restaurant, Hong Kong
+_Note: Whitespace, urls, email addresses, or other out-of-scope queries will yield no results.
+
+
+at	
+string
+Example: at=52.5308,13.3856
+Specify the center of the search context expressed as coordinates
+Format: {latitude},{longitude}
+Type: {decimal},{decimal}
+Example: -13.163068,-72.545128 (Machu Picchu Mountain, Peru)
+The following constraints apply:
+One of "at", "in=circle" or "in=bbox" is required.
+Parameters "at", "in=circle" and "in=bbox" are mutually exclusive. Only one of them is allowed.
+
+
+in	
+string
+Search within a geographic area. This is a hard filter. Results will be returned if they are located within the specified area.
+A geographic area can be
+a country (or multiple countries), provided as comma-separated ISO 3166-1 alpha-3 country codes
+The country codes are to be provided in all uppercase.
+Format: countryCode:{countryCode}[,{countryCode}]*
+Examples:
+countryCode:USA
+countryCode:CAN,MEX,USA
+a circular area, provided as latitude, longitude, and radius (in meters)
+Format: circle:{latitude},{longitude};r={radius}
+Type: circle:{decimal},{decimal};r={integer}
+Example: circle:52.53,13.38;r=10000
+a bounding box, provided as west longitude, south latitude, east longitude, north latitude
+Format: bbox:{west longitude},{south latitude},{east longitude},{north latitude}
+Example: bbox:13.08836,52.33812,13.761,52.6755
+The following constraints apply:
+Parameters "at", "in=circle" and "in=bbox" are mutually exclusive. Only one of them is allowed.
+One of "at", "in=circle" or "in=bbox" is required.
+The "in=countryCode" parameter must be accompanied by exactly one of "at", "in=circle" or "in=bbox".
+
+
+limit	
+integer <int32> [ 1 .. 100 ]
+Default: 20
+Maximum number of results to be returned.
+route	
+string
+BETA Select within a geographic corridor. This is a hard filter. Results will be returned if they are located within the specified area.
+A route is defined by a Flexible Polyline Encoding, followed by an optional width, represented by a sub-parameter "w".
+Format: {route};w={width}
+In regular expression syntax, the values of route look like:
+[a-zA-Z0-9_-]+(;w=\d+)?
+"[a-zA-Z0-9._-]+" is the encoded flexible polyline.
+"w=\d+" is the optional width. The width is specified in meters from the center of the path. If no width is provided, the default is 1000 meters.
+Type: {Flexible Polyline Encoding};w={integer}
+The following constraints apply:
+A route MUST NOT contain more than 2000 points.
+Examples:
+BFoz5xJ67i1B1B7PzIhaxL7Y
+BFoz5xJ67i1B1B7PzIhaxL7Y;w=5000
+BlD05xgKuy2xCCx9B7vUCl0OhnRC54EqSCzpEl-HCxjD3pBCiGnyGCi2CvwFCsgD3nDC4vB6eC;w=2000
+Note: The last example above can be decoded (using the Python class here as follows:
+>>> import flexpolyline
+>>> polyline = 'BlD05xgKuy2xCCx9B7vUCl0OhnRC54EqSCzpEl-HCxjD3pBCiGnyGCi2CvwFCsgD3nDC4vB6eC'
+>>> flexpolyline.decode(polyline)
+[(52.51994, 13.38663, 1.0), (52.51009, 13.28169, 2.0), (52.43518, 13.19352, 3.0), (52.41073, 13.19645, 4.0), (52.38871, 13.15578, 5.0), (52.37278, 13.1491, 6.0), (52.37375, 13.11546, 7.0), (52.38752, 13.08722, 8.0), (52.40294, 13.07062, 9.0), (52.41058, 13.07555, 10.0)]
+lang	
+Array of strings
+Select the language to be used for result rendering from a list of BCP 47 compliant language codes.
+politicalView	
+string
+Toggle the political view.
+This parameter accepts single ISO 3166-1 alpha-3 country code. The country codes are to be provided in all uppercase.
+For any valid 3 letter country code, for which GS7 does not have dedicated political view, it falls back to the default view.
+For not accepted values of the politicalView parameter the GS7 responds with "400" error code.
+Currently the only supported political views are:
+ARG: Argentina view on Southern Patagonian Ice Field and Tierra Del Fuego, including Falkland Islands, South Georgia and South Sandwich Islands
+EGY: Egypt view on Bir Tawil
+IND: Indian View on Gilgit-Baltistan
+KEN: Kenya view on Ilemi Triangle
+MAR: expressing the Moroccan view on Western Sahara
+PAK: Pakistan View on Jammu and Kashmir and Junagadh Area
+RUS: expressing the Russian view on Crimea
+SDN: Sudan view on Halaib Triangle
+SRB: expressing the Serbian view on Kosovo, Vukovar and Sarengrad Islands
+SUR: Suriname view on Courantyne Headwaters and Lawa Headwaters
+SYR: Syria view on Golan Heights
+TUR: Turkish view on Cyprus and Northern Cyprus
+TZA: Tanzania view on Lake Malawi
+URY: Uruguay view on Rincon de Artigas
+show	
+Array of strings
+Items Enum: "phonemes" "streetInfo" "tz"
+Select additional fields to be rendered in the response. Please note that some of the fields involve additional webservice calls and can increase the overall response time.
+The value is a comma-separated list of the sections to be enabled. For some sections there is a long and a short ID.
+Description of supported values:
+phonemes: Renders phonemes for address and place names into the results.
+streetInfo: For each result item renders additional block with the street name decomposed into its parts like the base name, the street type, etc.
+tz: Renders result items with additional time zone information. Please note that this may impact latency significantly.
+
+
+HEADER PARAMETERS
+X-Request-ID	
+string
+Used to correlate requests with their responses within a customer's application, for logging and error reporting.
+Format: Free string, but a valid UUIDv4 is recommended.
+
+
+Responses
+
+200 The search results.
+RESPONSE SCHEMA: application/json
+
+items
+required
+Array of objects
+The results are presented as a JSON list of candidates in ranked order (most-likely to least-likely) based on the matched location criteria.
+Array ()
+title
+required
+string
+The localized display name of this result item.
+id
+required
+string
+The unique identifier for the result item. This ID can be used for a Look Up by ID search as well.
+politicalView	
+string
+ISO3 country code of the item political view (default for international). This response element is populated when the politicalView parameter is set in the query
+ontologyId	
+string
+Related ontology ID
+resultType	
+string
+Enum: "administrativeArea" "locality" "street" "intersection" "addressBlock" "houseNumber" "postalCodePoint" "place"
+houseNumberType	
+string
+Enum: "PA" "interpolated"
+PA - a Point Address represents an individual address as a point object. Point Addresses are coming from trusted sources. We can say with high certainty that the address exists and at what position. A Point Address result contains two types of coordinates. One is the access point (or navigation coordinates), which is the point to start or end a drive. The other point is the position or display point. This point varies per source and country. The point can be the rooftop point, a point close to the building entry, or a point close to the building, driveway or parking lot that belongs to the building.
+interpolated - an interpolated address. These are approximate positions as a result of a linear interpolation based on address ranges. Address ranges, especially in the USA, are typical per block. For interpolated addresses, we cannot say with confidence that the address exists in reality. But the interpolation provides a good location approximation that brings people in most use cases close to the target location. The access point of an interpolated address result is calculated based on the address range and the road geometry. The position (display) point is pre-configured offset from the street geometry. Compared to Point Addresses, interpolated addresses are less accurate.
+addressBlockType	
+string
+Enum: "block" "subblock"
+localityType	
+string
+Enum: "postalCode" "subdistrict" "district" "city"
+administrativeAreaType	
+string
+Enum: "county" "state" "country"
+
+
+address
+required
+object
+Postal address of the result item.
+label	
+string
+Assembled address value built out of the address components according to the regional postal rules. These are the same rules for all endpoints. It may not include all the input terms. For example: "Schulstraße 4, 32547 Bad Oeynhausen, Germany"
+countryCode	
+string
+A three-letter country code. For example: "DEU"
+countryName	
+string
+The localised country name. For example: "Deutschland"
+stateCode	
+string
+A state code or state name abbreviation – country specific. For example, in the United States it is the two letter state abbreviation: "CA" for California.
+state	
+string
+The state division of a country. For example: "North Rhine-Westphalia"
+countyCode	
+string
+A county code or county name abbreviation – country specific. For example, for Italy it is the province abbreviation: "RM" for Rome.
+county	
+string
+A division of a state; typically, a secondary-level administrative division of a country or equivalent.
+city	
+string
+The name of the primary locality of the place. For example: "Bad Oyenhausen"
+district	
+string
+A division of city; typically an administrative unit within a larger city or a customary name of a city's neighborhood. For example: "Bad Oyenhausen"
+subdistrict	
+string
+A subdivision of a district. For example: "Minden-Lübbecke"
+street	
+string
+Name of street. For example: "Schulstrasse"
+block	
+string
+Name of block.
+subblock	
+string
+Name of sub-block.
+postalCode	
+string
+An alphanumeric string included in a postal address to facilitate mail sorting, such as post code, postcode, or ZIP code. For example: "32547"
+houseNumber	
+string
+House number. For example: "4"
+building	
+string
+Name of building.
+
+
+position	
+object
+The coordinates (latitude, longitude) of a pin on a map corresponding to the searched place.
+lat
+required
+number <double>
+Latitude of the address. For example: "52.19404"
+lng
+required
+number <double>
+Longitude of the address. For example: "8.80135"
+
+
+access	
+Array of objects
+Coordinates of the place you are navigating to (for example, driving or walking). This is a point on a road or in a parking lot.
+Array ()
+lat
+required
+number <double>
+Latitude of the address. For example: "52.19404"
+lng
+required
+number <double>
+Longitude of the address. For example: "8.80135"
+distance	
+integer <int64>
+The distance "as the crow flies" from the search center to this result item in meters. For example: "172039".
+When searching along a route this is the distance along the route plus the distance from the route polyline to this result item.
+excursionDistance	
+integer <int64>
+BETA Two times the distance from the polyline to this result item in meters while searching along the route
+
+
+mapView	
+object
+The bounding box enclosing the geometric shape (area or line) that an individual result covers. place typed results have no mapView.
+west
+required
+number <double>
+Longitude of the western-side of the box. For example: "8.80068"
+south
+required
+number <double>
+Latitude of the southern-side of the box. For example: "52.19333"
+east
+required
+number <double>
+Longitude of the eastern-side of the box. For example: "8.8167"
+north
+required
+number <double>
+Latitude of the northern-side of the box. For example: "52.19555"
+
+
+categories	
+Array of objects
+The list of categories assigned to this place.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+
+
+chains	
+Array of objects
+The list of chains assigned to this place.
+Array ()
+id
+required
+string
+Identifier number for an associated chain. For example: "272"
+
+
+references	
+Array of objects
+The list of supplier references available for this place.
+Array ()
+supplier
+required
+object
+Information about the supplier of this reference.
+id
+required
+string
+Identifier of the place as provided by the supplier.
+
+
+foodTypes	
+Array of objects
+The list of food types assigned to this place.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+houseNumberFallback	
+boolean
+If true, indicates that the requested house number was corrected to match the nearest known house number. This field is visible only when the value is true.
+
+
+contacts	
+Array of objects
+Contact information like phone, email, WWW.
+Array ()
+phone	
+Array of objects
+Array ()
+label	
+string
+Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+value
+required
+string
+Contact information, as specified by the contact type.
+categories	
+Array of objects
+The list of place categories this contact refers to.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+
+
+mobile	
+Array of objects
+Array ()
+label	
+string
+Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+value
+required
+string
+Contact information, as specified by the contact type.
+categories	
+Array of objects
+The list of place categories this contact refers to.
+
+
+tollFree	
+Array of objects
+Array ()
+label	
+string
+Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+value
+required
+string
+Contact information, as specified by the contact type.
+
+
+categories	
+Array of objects
+The list of place categories this contact refers to.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+
+
+fax	
+Array of objects
+Array ()
+label	
+string
+Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+value
+required
+string
+Contact information, as specified by the contact type.
+
+
+categories	
+Array of objects
+The list of place categories this contact refers to.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+
+
+www	
+Array of objects
+Array ()
+label	
+string
+Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+value
+required
+string
+Contact information, as specified by the contact type.
+
+
+categories	
+Array of objects
+The list of place categories this contact refers to.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+
+
+email	
+Array of objects
+Array ()
+label	
+string
+Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+value
+required
+string
+Contact information, as specified by the contact type.
+
+
+categories	
+Array of objects
+The list of place categories this contact refers to.
+openingHours	
+Array of objects
+A list of hours during which the place is open for business. This field is optional: When it is not present, it means that we are lacking data about the place opening hours. Days without opening hours have to be considered as closed.
+Array ()
+
+
+categories	
+Array of objects
+The list of place categories, this set of opening hours refers to.
+text
+required
+Array of strings
+isOpen	
+boolean
+structured
+required
+Array of objects
+List of iCalender-based structured representations of opening hours
+Array ()
+start
+required
+string
+String with a modified iCalendar DATE-TIME value. The date part is omitted, values starts with the time section maker "T". Example: T132000
+duration
+required
+string
+String with an iCalendar DURATION value. A closed day has the value PT00:00M
+recurrence
+required
+string
+String with a RECUR rule. Note that, in contrast to the RFC, the assignment operator is a colon : and not an equal sign =.
+
+
+timeZone	
+object
+Provides time zone information for this place. (rendered only if 'show=tz' is provided.)
+name
+required
+string
+The name of the time zone as defined in the tz database. For example: "Europe/Berlin"
+utcOffset
+required
+string
+The UTC offset for this time zone at request time. For example "+02:00"
+
+
+extended	
+object
+Extended attributes section to contain detailed information for specific result types.
+phonemes	
+object
+Phonemes for address and place names. (rendered only if 'show=phonemes' is provided.)
+
+
+placeName	
+Array of objects
+Phonemes for the name of the place.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+
+
+countryName	
+Array of objects
+Phonemes for the county name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+
+
+state	
+Array of objects
+Phonemes for the state name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+
+
+county	
+Array of objects
+Phonemes for the county name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+
+
+city	
+Array of objects
+Phonemes for the city name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+
+
+district	
+Array of objects
+Phonemes for the district name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+
+
+subdistrict	
+Array of objects
+Phonemes for the subdistrict name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+
+
+street	
+Array of objects
+Phonemes for the street name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+
+
+block	
+Array of objects
+Phonemes for the block.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+
+
+subblock	
+Array of objects
+Phonemes for the sub-block.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+streetInfo	
+Array of objects
+Street Details (only rendered if 'show=streetInfo' is provided.)
+Array ()
+baseName	
+string
+Base name part of the street name.
+streetType	
+string
+Street type part of the street name.
+streetTypePrecedes	
+boolean
+Defines if the street type is before or after the base name.
+streetTypeAttached	
+boolean
+Defines if the street type is attached or unattached to the base name.
+prefix	
+string
+A prefix is a directional identifier that precedes, but is not included in, the base name of a road.
+suffix	
+string
+A suffix is a directional identifier that follows, but is not included in, the base name of a road.
+direction	
+string
+Indicates the official directional identifiers assigned to highways, typically either "North/South" or "East/West"
+language	
+string
+BCP 47 compliant language code
+
+
+400 Client error: request failed validation.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+
+
+405 Client error: http method not supported.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+
+
+429 Client error: Rate limit exceeded.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+
+
+503 Temporary server error.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+
+
+Response samples
+
+200 Content type application/json
+
+{
+"items": [
+{
+"title": "string",
+"id": "string",
+"politicalView": "string",
+"ontologyId": "string",
+"resultType": "administrativeArea",
+"houseNumberType": "PA",
+"addressBlockType": "block",
+"localityType": "postalCode",
+"administrativeAreaType": "county",
+"address": {
+"label": "string",
+"countryCode": "string",
+"countryName": "string",
+"stateCode": "string",
+"state": "string",
+"countyCode": "string",
+"county": "string",
+"city": "string",
+"district": "string",
+"subdistrict": "string",
+"street": "string",
+"block": "string",
+"subblock": "string",
+"postalCode": "string",
+"houseNumber": "string",
+"building": "string"
+},
+"position": {
+"lat": 0,
+"lng": 0
+},
+"access": [
+{
+"lat": 0,
+"lng": 0
+}
+],
+"distance": 172039,
+"excursionDistance": 0,
+"mapView": {
+"west": 0,
+"south": 0,
+"east": 0,
+"north": 0
+},
+"categories": [
+{
+"id": "string",
+"name": "string",
+"primary": true
+}
+],
+"chains": [
+{
+"id": "string"
+}
+],
+"references": [
+{
+"supplier": {
+"id": "core"
+},
+"id": "string"
+}
+],
+"foodTypes": [
+{
+"id": "string",
+"name": "string",
+"primary": true
+}
+],
+"houseNumberFallback": true,
+"contacts": [
+{
+"phone": [
+{
+"label": "string",
+"value": "string",
+"categories": [
+{
+"id": "string",
+"name": "string",
+"primary": true
+}
+]
+}
+],
+"mobile": [
+{
+"label": "string",
+"value": "string",
+"categories": [
+{
+"id": "string",
+"name": "string",
+"primary": true
+}
+]
+}
+],
+"tollFree": [
+{
+"label": "string",
+"value": "string",
+"categories": [
+{
+"id": "string",
+"name": "string",
+"primary": true
+}
+]
+}
+],
+"fax": [
+{
+"label": "string",
+"value": "string",
+"categories": [
+{
+"id": "string",
+"name": "string",
+"primary": true
+}
+]
+}
+],
+"www": [
+{
+"label": "string",
+"value": "string",
+"categories": [
+{
+"id": "string",
+"name": "string",
+"primary": true
+}
+]
+}
+],
+"email": [
+{
+"label": "string",
+"value": "string",
+"categories": [
+{
+"id": "string",
+"name": "string",
+"primary": true
+}
+]
+}
+]
+}
+],
+"openingHours": [
+{
+"categories": [
+{
+"id": "string",
+"name": "string",
+"primary": true
+}
+],
+"text": [
+"string"
+],
+"isOpen": true,
+"structured": [
+{
+"start": "string",
+"duration": "string",
+"recurrence": "string"
+}
+]
+}
+],
+"timeZone": {
+"name": "string",
+"utcOffset": "string"
+},
+"extended": { },
+"phonemes": {
+"placeName": [
+{
+"value": "string",
+"language": "string",
+"preferred": true
+}
+],
+"countryName": [
+{
+"value": "string",
+"language": "string",
+"preferred": true
+}
+],
+"state": [
+{
+"value": "string",
+"language": "string",
+"preferred": true
+}
+],
+"county": [
+{
+"value": "string",
+"language": "string",
+"preferred": true
+}
+],
+"city": [
+{
+"value": "string",
+"language": "string",
+"preferred": true
+}
+],
+"district": [
+{
+"value": "string",
+"language": "string",
+"preferred": true
+}
+],
+"subdistrict": [
+{
+"value": "string",
+"language": "string",
+"preferred": true
+}
+],
+"street": [
+{
+"value": "string",
+"language": "string",
+"preferred": true
+}
+],
+"block": [
+{
+"value": "string",
+"language": "string",
+"preferred": true
+}
+],
+"subblock": [
+{
+"value": "string",
+"language": "string",
+"preferred": true
+}
+]
+},
+"streetInfo": [
+{
+"baseName": "string",
+"streetType": "string",
+"streetTypePrecedes": true,
+"streetTypeAttached": true,
+"prefix": "string",
+"suffix": "string",
+"direction": "string",
+"language": "string"
+}
+]
+}
+]
+}
+
+
+================================================================================
+Autosuggest
+
+GET
+/v1/autosuggest
+https://autosuggest.search.hereapi.com/v1/autosuggest
+
+This endpoint suggests address or place candidates based on an incomplete or misspelled query, from which the user selects the best query to submit.
+
+NOTE: The response may contain experimental elements not documented here. Any undocumented element is subject to removal at any time.
+
+QUERY PARAMETERS
+apiKey
+string
+A key generated specifically to authenticate API requests. For more information on how to get an API key, see the Identity & Access Management Guide.
+q
+required
+string
+Example: q=Eismieze Berlin
+Enter a free-text query
+Examples:
+res, rest, resta, restau, ...
+berlin+bran, berlin+brand, berlin+branden, ...
+New+Yok+Giants
+_Note: Whitespace, urls, email addresses, or other out-of-scope queries will yield no results.
+at	
+string
+Example: at=52.5308,13.3856
+Specify the center of the search context expressed as coordinates
+Format: {latitude},{longitude}
+Type: {decimal},{decimal}
+Example: -13.163068,-72.545128 (Machu Picchu Mountain, Peru)
+The following constraints apply:
+One of "at", "in=circle" or "in=bbox" is required.
+Parameters "at", "in=circle" and "in=bbox" are mutually exclusive. Only one of them is allowed.
+in	
+string
+Search within a geographic area. This is a hard filter. Results will be returned if they are located within the specified area.
+A geographic area can be
+a country (or multiple countries), provided as comma-separated ISO 3166-1 alpha-3 country codes
+The country codes are to be provided in all uppercase.
+Format: countryCode:{countryCode}[,{countryCode}]*
+Examples:
+countryCode:USA
+countryCode:CAN,MEX,USA
+a circular area, provided as latitude, longitude, and radius (in meters)
+Format: circle:{latitude},{longitude};r={radius}
+Type: circle:{decimal},{decimal};r={integer}
+Example: circle:52.53,13.38;r=10000
+a bounding box, provided as west longitude, south latitude, east longitude, north latitude
+Format: bbox:{west longitude},{south latitude},{east longitude},{north latitude}
+Example: bbox:13.08836,52.33812,13.761,52.6755
+The following constraints apply:
+Parameters "at", "in=circle" and "in=bbox" are mutually exclusive. Only one of them is allowed.
+One of "at", "in=circle" or "in=bbox" is required.
+The "in=countryCode" parameter must be accompanied by exactly one of "at", "in=circle" or "in=bbox".
+limit	
+integer <int32> [ 1 .. 100 ]
+Default: 20
+Maximum number of results to be returned.
+route	
+string
+BETA Select within a geographic corridor. This is a hard filter. Results will be returned if they are located within the specified area.
+A route is defined by a Flexible Polyline Encoding, followed by an optional width, represented by a sub-parameter "w".
+Format: {route};w={width}
+In regular expression syntax, the values of route look like:
+[a-zA-Z0-9_-]+(;w=\d+)?
+"[a-zA-Z0-9._-]+" is the encoded flexible polyline.
+"w=\d+" is the optional width. The width is specified in meters from the center of the path. If no width is provided, the default is 1000 meters.
+Type: {Flexible Polyline Encoding};w={integer}
+The following constraints apply:
+A route MUST NOT contain more than 2000 points.
+Examples:
+BFoz5xJ67i1B1B7PzIhaxL7Y
+BFoz5xJ67i1B1B7PzIhaxL7Y;w=5000
+BlD05xgKuy2xCCx9B7vUCl0OhnRC54EqSCzpEl-HCxjD3pBCiGnyGCi2CvwFCsgD3nDC4vB6eC;w=2000
+Note: The last example above can be decoded (using the Python class here as follows:
+>>> import flexpolyline
+>>> polyline = 'BlD05xgKuy2xCCx9B7vUCl0OhnRC54EqSCzpEl-HCxjD3pBCiGnyGCi2CvwFCsgD3nDC4vB6eC'
+>>> flexpolyline.decode(polyline)
+[(52.51994, 13.38663, 1.0), (52.51009, 13.28169, 2.0), (52.43518, 13.19352, 3.0), (52.41073, 13.19645, 4.0), (52.38871, 13.15578, 5.0), (52.37278, 13.1491, 6.0), (52.37375, 13.11546, 7.0), (52.38752, 13.08722, 8.0), (52.40294, 13.07062, 9.0), (52.41058, 13.07555, 10.0)]
+termsLimit	
+integer <int32> [ 0 .. 10 ]
+Maximum number of Query Terms Suggestions to be returned.
+lang	
+Array of strings
+Select the language to be used for result rendering from a list of BCP 47 compliant language codes.
+politicalView	
+string
+Toggle the political view.
+This parameter accepts single ISO 3166-1 alpha-3 country code. The country codes are to be provided in all uppercase.
+For any valid 3 letter country code, for which GS7 does not have dedicated political view, it falls back to the default view.
+For not accepted values of the politicalView parameter the GS7 responds with "400" error code.
+Currently the only supported political views are:
+ARG: Argentina view on Southern Patagonian Ice Field and Tierra Del Fuego, including Falkland Islands, South Georgia and South Sandwich Islands
+EGY: Egypt view on Bir Tawil
+IND: Indian View on Gilgit-Baltistan
+KEN: Kenya view on Ilemi Triangle
+MAR: expressing the Moroccan view on Western Sahara
+PAK: Pakistan View on Jammu and Kashmir and Junagadh Area
+RUS: expressing the Russian view on Crimea
+SDN: Sudan view on Halaib Triangle
+SRB: expressing the Serbian view on Kosovo, Vukovar and Sarengrad Islands
+SUR: Suriname view on Courantyne Headwaters and Lawa Headwaters
+SYR: Syria view on Golan Heights
+TUR: Turkish view on Cyprus and Northern Cyprus
+TZA: Tanzania view on Lake Malawi
+URY: Uruguay view on Rincon de Artigas
+show	
+Array of strings
+Items Enum: "phonemes" "streetInfo" "tz"
+Select additional fields to be rendered in the response. Please note that some of the fields involve additional webservice calls and can increase the overall response time.
+The value is a comma-separated list of the sections to be enabled. For some sections there is a long and a short ID.
+Description of supported values:
+phonemes: Renders phonemes for address and place names into the results.
+streetInfo: For each result item renders additional block with the street name decomposed into its parts like the base name, the street type, etc.
+tz: Renders result items with additional time zone information. Please note that this may impact latency significantly.
+HEADER PARAMETERS
+
+X-Request-ID	
+string
+Used to correlate requests with their responses within a customer's application, for logging and error reporting.
+Format: Free string, but a valid UUIDv4 is recommended.
+Responses
+
+200 The search results.
+RESPONSE SCHEMA: application/json
+
+items
+required
+Array of AutosuggestEntityResultItem (object) or AutosuggestQueryResultItem (object)
+The results are presented as a JSON list of candidates in ranked order (most-likely to least-likely) based on the matched location criteria.
+Array ()
+One of AutosuggestEntityResultItemAutosuggestQueryResultItem
+title
+required
+string
+The localized display name of this result item.
+id
+required
+string
+The unique identifier for the result item. This ID can be used for a Look Up by ID search as well.
+politicalView	
+string
+ISO3 country code of the item political view (default for international). This response element is populated when the politicalView parameter is set in the query
+ontologyId	
+string
+Related ontology ID
+resultType	
+string
+Enum: "administrativeArea" "locality" "street" "intersection" "addressBlock" "houseNumber" "postalCodePoint" "place"
+houseNumberType	
+string
+Enum: "PA" "interpolated"
+PA - a Point Address represents an individual address as a point object. Point Addresses are coming from trusted sources. We can say with high certainty that the address exists and at what position. A Point Address result contains two types of coordinates. One is the access point (or navigation coordinates), which is the point to start or end a drive. The other point is the position or display point. This point varies per source and country. The point can be the rooftop point, a point close to the building entry, or a point close to the building, driveway or parking lot that belongs to the building.
+interpolated - an interpolated address. These are approximate positions as a result of a linear interpolation based on address ranges. Address ranges, especially in the USA, are typical per block. For interpolated addresses, we cannot say with confidence that the address exists in reality. But the interpolation provides a good location approximation that brings people in most use cases close to the target location. The access point of an interpolated address result is calculated based on the address range and the road geometry. The position (display) point is pre-configured offset from the street geometry. Compared to Point Addresses, interpolated addresses are less accurate.
+addressBlockType	
+string
+Enum: "block" "subblock"
+localityType	
+string
+Enum: "postalCode" "subdistrict" "district" "city"
+administrativeAreaType	
+string
+Enum: "county" "state" "country"
+address
+required
+object
+Postal address of the result item.
+label	
+string
+Assembled address value built out of the address components according to the regional postal rules. These are the same rules for all endpoints. It may not include all the input terms. For example: "Schulstraße 4, 32547 Bad Oeynhausen, Germany"
+countryCode	
+string
+A three-letter country code. For example: "DEU"
+countryName	
+string
+The localised country name. For example: "Deutschland"
+stateCode	
+string
+A state code or state name abbreviation – country specific. For example, in the United States it is the two letter state abbreviation: "CA" for California.
+state	
+string
+The state division of a country. For example: "North Rhine-Westphalia"
+countyCode	
+string
+A county code or county name abbreviation – country specific. For example, for Italy it is the province abbreviation: "RM" for Rome.
+county	
+string
+A division of a state; typically, a secondary-level administrative division of a country or equivalent.
+city	
+string
+The name of the primary locality of the place. For example: "Bad Oyenhausen"
+district	
+string
+A division of city; typically an administrative unit within a larger city or a customary name of a city's neighborhood. For example: "Bad Oyenhausen"
+subdistrict	
+string
+A subdivision of a district. For example: "Minden-Lübbecke"
+street	
+string
+Name of street. For example: "Schulstrasse"
+block	
+string
+Name of block.
+subblock	
+string
+Name of sub-block.
+postalCode	
+string
+An alphanumeric string included in a postal address to facilitate mail sorting, such as post code, postcode, or ZIP code. For example: "32547"
+houseNumber	
+string
+House number. For example: "4"
+building	
+string
+Name of building.
+position	
+object
+The coordinates (latitude, longitude) of a pin on a map corresponding to the searched place.
+lat
+required
+number <double>
+Latitude of the address. For example: "52.19404"
+lng
+required
+number <double>
+Longitude of the address. For example: "8.80135"
+access	
+Array of objects
+Coordinates of the place you are navigating to (for example, driving or walking). This is a point on a road or in a parking lot.
+Array ()
+lat
+required
+number <double>
+Latitude of the address. For example: "52.19404"
+lng
+required
+number <double>
+Longitude of the address. For example: "8.80135"
+distance	
+integer <int64>
+The distance "as the crow flies" from the search center to this result item in meters. For example: "172039".
+When searching along a route this is the distance along the route plus the distance from the route polyline to this result item.
+excursionDistance	
+integer <int64>
+BETA Two times the distance from the polyline to this result item in meters while searching along the route
+mapView	
+object
+The bounding box enclosing the geometric shape (area or line) that an individual result covers. place typed results have no mapView.
+west
+required
+number <double>
+Longitude of the western-side of the box. For example: "8.80068"
+south
+required
+number <double>
+Latitude of the southern-side of the box. For example: "52.19333"
+east
+required
+number <double>
+Longitude of the eastern-side of the box. For example: "8.8167"
+north
+required
+number <double>
+Latitude of the northern-side of the box. For example: "52.19555"
+categories	
+Array of objects
+The list of categories assigned to this place.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+chains	
+Array of objects
+The list of chains assigned to this place.
+Array ()
+id
+required
+string
+Identifier number for an associated chain. For example: "272"
+references	
+Array of objects
+The list of supplier references available for this place.
+Array ()
+supplier
+required
+object
+Information about the supplier of this reference.
+id
+required
+string
+Enum: "core" "yelp" "tripadvisor" "parkopedia" "venues" "vinfast" "ryd" "booking.com" "nsr"
+An identifier for the supplier.
+id
+required
+string
+Identifier of the place as provided by the supplier.
+foodTypes	
+Array of objects
+The list of food types assigned to this place.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+contacts	
+Array of objects
+BETA Contact information like phone, email, WWW.
+Array ()
+phone	
+Array of objects
+Array ()
+label	
+string
+Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+value
+required
+string
+Contact information, as specified by the contact type.
+categories	
+Array of objects
+The list of place categories this contact refers to.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+mobile	
+Array of objects
+Array ()
+label	
+string
+Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+value
+required
+string
+Contact information, as specified by the contact type.
+categories	
+Array of objects
+The list of place categories this contact refers to.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+tollFree	
+Array of objects
+Array ()
+label	
+string
+Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+value
+required
+string
+Contact information, as specified by the contact type.
+categories	
+Array of objects
+The list of place categories this contact refers to.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+fax	
+Array of objects
+Array ()
+label	
+string
+Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+value
+required
+string
+Contact information, as specified by the contact type.
+categories	
+Array of objects
+The list of place categories this contact refers to.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+www	
+Array of objects
+Array ()
+label	
+string
+Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+value
+required
+string
+Contact information, as specified by the contact type.
+categories	
+Array of objects
+The list of place categories this contact refers to.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+email	
+Array of objects
+Array ()
+label	
+string
+Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+value
+required
+string
+Contact information, as specified by the contact type.
+categories	
+Array of objects
+The list of place categories this contact refers to.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+openingHours	
+Array of objects
+BETA A list of hours during which the place is open for business.
+Array ()
+categories	
+Array of objects
+The list of place categories, this set of opening hours refers to.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+text
+required
+Array of strings
+isOpen	
+boolean
+structured
+required
+Array of objects
+List of iCalender-based structured representations of opening hours
+Array ()
+start
+required
+string
+String with a modified iCalendar DATE-TIME value. The date part is omitted, values starts with the time section maker "T". Example: T132000
+duration
+required
+string
+String with an iCalendar DURATION value. A closed day has the value PT00:00M
+recurrence
+required
+string
+String with a RECUR rule. Note that, in contrast to the RFC, the assignment operator is a colon : and not an equal sign =.
+timeZone	
+object
+Provides time zone information for this place. (rendered only if 'show=tz' is provided.)
+name
+required
+string
+The name of the time zone as defined in the tz database. For example: "Europe/Berlin"
+utcOffset
+required
+string
+The UTC offset for this time zone at request time. For example "+02:00"
+highlights	
+object
+Describes how the parts of the response element matched the input query
+title	
+Array of objects
+Ranges of indexes that matched in the title attribute
+Array ()
+start
+required
+integer <int32>
+first index of the matched range (0-based indexing, inclusive)
+end
+required
+integer <int32>
+one past the last index of the matched range (0-based indexing, exclusive); The difference between end and start gives the length of the term
+phonemes	
+object
+Phonemes for address and place names. (rendered only if 'show=phonemes' is provided.)
+placeName	
+Array of objects
+Phonemes for the name of the place.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+countryName	
+Array of objects
+Phonemes for the county name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+state	
+Array of objects
+Phonemes for the state name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+county	
+Array of objects
+Phonemes for the county name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+city	
+Array of objects
+Phonemes for the city name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+district	
+Array of objects
+Phonemes for the district name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+subdistrict	
+Array of objects
+Phonemes for the subdistrict name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+street	
+Array of objects
+Phonemes for the street name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+block	
+Array of objects
+Phonemes for the block.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+subblock	
+Array of objects
+Phonemes for the sub-block.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+streetInfo	
+Array of objects
+Street Details (only rendered if 'show=streetInfo' is provided.)
+Array ()
+baseName	
+string
+Base name part of the street name.
+streetType	
+string
+Street type part of the street name.
+streetTypePrecedes	
+boolean
+Defines if the street type is before or after the base name.
+streetTypeAttached	
+boolean
+Defines if the street type is attached or unattached to the base name.
+prefix	
+string
+A prefix is a directional identifier that precedes, but is not included in, the base name of a road.
+suffix	
+string
+A suffix is a directional identifier that follows, but is not included in, the base name of a road.
+direction	
+string
+Indicates the official directional identifiers assigned to highways, typically either "North/South" or "East/West"
+language	
+string
+BCP 47 compliant language code
+queryTerms
+required
+Array of objects
+Suggestions for refining individual query terms
+Array ()
+term
+required
+string
+The term that will be suggested to the user.
+replaces
+required
+string
+The sub-string of the original query that is replaced by this Query Term.
+start
+required
+integer <int32>
+The start index in codepoints (inclusive) of the text replaced in the original query.
+end
+required
+integer <int32>
+The end index in codepoints (exclusive) of the text replaced in the original query.
+400 Client error: request failed validation.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+405 Client error: http method not supported.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+429 Client error: Rate limit exceeded.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+503 Temporary server error.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+
+================================================================================
+
+Autocomplete
+GET
+/v1/autocomplete
+https://autocomplete.search.hereapi.com/v1/autocomplete
+
+BETA This endpoint completes the few entered keystrokes to the valid street address or administrative area to speed-up entering the address queries.
+
+QUERY PARAMETERS
+apiKey
+string
+A key generated specifically to authenticate API requests. For more information on how to get an API key, see the Identity & Access Management Guide.
+q
+required
+string
+Example: q=Berlin Pariser 20
+Enter a free-text query
+Examples:
+ber, berl, berli, ...
+berlin+p, berlin+paris, berlin+parise, ...
+berlin+pariser+20
+Note: Whitespace, urls, email addresses, or other out-of-scope queries will yield no results.
+at	
+string
+Specify the center of the search context expressed as coordinates.
+Format: {latitude},{longitude}
+Type: {decimal},{decimal}
+Example: -13.163068,-72.545128 (Machu Picchu Mountain, Peru)
+in	
+string
+Search within a geographic area. This is a hard filter. Results will be returned if they are located within the specified area.
+A geographic area can be
+a country (or multiple countries), provided as comma-separated ISO 3166-1 alpha-3 country codes
+The country codes are to be provided in all uppercase.
+Format: countryCode:{countryCode}[,{countryCode}]*
+Examples:
+countryCode:USA
+countryCode:CAN,MEX,USA
+limit	
+integer <int32> [ 1 .. 20 ]
+Default: 5
+Maximum number of results to be returned.
+types	
+Array of strings
+Items Enum: "area" "city" "postalCode"
+BETA Limit the result items to the specified types. Currently supported values of the type filter for Autocomplete:
+city - restricting results to result type locality and locality type city
+postalCode - restricting results to result type locality and locality type postalCode,
+area - restricting results to result types: locality or administrativeArea including all the sub-types
+Provide one of the supported values or a comma separated list.
+Description of supported values:
+BETA area
+BETA city
+BETA postalCode
+lang	
+Array of strings
+Select the preferred response language for result rendering from a list of BCP47 compliant Language Codes. The autocomplete endpoint tries to detect the query language based on matching name variants and then chooses the same language for the response.
+Therefore the end-user can see and recognize all the entered terms in the same language as in the query. The specified preferred language is used only for not matched address tokens and for matched address tokens in case of ambiguity
+politicalView	
+string
+Toggle the political view.
+This parameter accepts single ISO 3166-1 alpha-3 country code. The country codes are to be provided in all uppercase.
+For any valid 3 letter country code, for which GS7 does not have dedicated political view, it falls back to the default view.
+For not accepted values of the politicalView parameter the GS7 responds with "400" error code.
+Currently the only supported political views are:
+ARG: Argentina view on Southern Patagonian Ice Field and Tierra Del Fuego, including Falkland Islands, South Georgia and South Sandwich Islands
+EGY: Egypt view on Bir Tawil
+IND: Indian View on Gilgit-Baltistan
+KEN: Kenya view on Ilemi Triangle
+MAR: expressing the Moroccan view on Western Sahara
+PAK: Pakistan View on Jammu and Kashmir and Junagadh Area
+RUS: expressing the Russian view on Crimea
+SDN: Sudan view on Halaib Triangle
+SRB: expressing the Serbian view on Kosovo, Vukovar and Sarengrad Islands
+SUR: Suriname view on Courantyne Headwaters and Lawa Headwaters
+SYR: Syria view on Golan Heights
+TUR: Turkish view on Cyprus and Northern Cyprus
+TZA: Tanzania view on Lake Malawi
+URY: Uruguay view on Rincon de Artigas
+show	
+Array of strings
+Items Value: "streetInfo"
+Select additional fields to be rendered in the response. Please note that some of the fields involve additional webservice calls and can increase the overall response time.
+The value is a comma-separated list of the sections to be enabled. For some sections there is a long and a short ID.
+Description of supported values:
+streetInfo: For each result item renders additional block with the street name decomposed into its parts like the base name, the street type, etc.
+HEADER PARAMETERS
+
+X-Request-ID	
+string
+Used to correlate requests with their responses within a customer's application, for logging and error reporting.
+Format: Free string, but a valid UUIDv4 is recommended.
+Responses
+
+200 The search results.
+RESPONSE SCHEMA: application/json
+
+items
+required
+Array of objects
+The results are presented as a JSON list of candidates in ranked order (most-likely to least-likely) based on the matched location criteria.
+Array ()
+title
+required
+string
+The unified display name of this result item. The result title is composed so that the customer application can use it to render the suggestions with highlighting. It is build in a unified way for all the countries starting from the country name and down to the address line. It is build out of the address components that are important for the end-user to recognize and eventually to choose a result and includes all the input terms. For example: "Germany, 32547, Bad Oeynhausen, Schulstraße 4"
+id
+required
+string
+The unique identifier for the result item. This ID can be used for a Look Up by ID search as well.
+language	
+string
+The preferred language of address elements in the result.
+politicalView	
+string
+ISO3 country code of the item political view (default for international). This response element is populated when the politicalView parameter is set in the query
+resultType	
+string
+Enum: "administrativeArea" "locality" "street" "intersection" "addressBlock" "houseNumber" "postalCodePoint" "place"
+houseNumberType	
+string
+Enum: "PA" "interpolated"
+localityType	
+string
+Enum: "postalCode" "subdistrict" "district" "city"
+administrativeAreaType	
+string
+Enum: "county" "state" "country"
+address
+required
+object
+Detailed address of the result item.
+label	
+string
+Assembled address value built out of the address components according to the regional postal rules. These are the same rules for all endpoints. It may not include all the input terms. For example: "Schulstraße 4, 32547 Bad Oeynhausen, Germany"
+countryCode	
+string
+A three-letter country code. For example: "DEU"
+countryName	
+string
+The localised country name. For example: "Deutschland"
+stateCode	
+string
+A state code or state name abbreviation – country specific. For example, in the United States it is the two letter state abbreviation: "CA" for California.
+state	
+string
+The state division of a country. For example: "North Rhine-Westphalia"
+countyCode	
+string
+A county code or county name abbreviation – country specific. For example, for Italy it is the province abbreviation: "RM" for Rome.
+county	
+string
+A division of a state; typically, a secondary-level administrative division of a country or equivalent.
+city	
+string
+The name of the primary locality of the place. For example: "Bad Oyenhausen"
+district	
+string
+A division of city; typically an administrative unit within a larger city or a customary name of a city's neighborhood. For example: "Bad Oyenhausen"
+subdistrict	
+string
+A subdivision of a district. For example: "Minden-Lübbecke"
+street	
+string
+Name of street. For example: "Schulstrasse"
+block	
+string
+Name of block.
+subblock	
+string
+Name of sub-block.
+postalCode	
+string
+An alphanumeric string included in a postal address to facilitate mail sorting, such as post code, postcode, or ZIP code. For example: "32547"
+houseNumber	
+string
+House number. For example: "4"
+building	
+string
+Name of building.
+distance	
+integer <int64>
+The distance "as the crow flies" from the search center to this result item in meters. For example: "172039".
+When searching along a route this is the distance along the route plus the distance from the route polyline to this result item.
+highlights	
+object
+Describes how the parts of the response element matched the input query
+title	
+Array of objects
+Ranges of indexes that matched in the title attribute
+Array ()
+start
+required
+integer <int32>
+first index of the matched range (0-based indexing, inclusive)
+end
+required
+integer <int32>
+one past the last index of the matched range (0-based indexing, exclusive); The difference between end and start gives the length of the term
+streetInfo	
+Array of objects
+Street Details (only rendered if 'show=streetInfo' is provided.)
+Array ()
+baseName	
+string
+Base name part of the street name.
+streetType	
+string
+Street type part of the street name.
+streetTypePrecedes	
+boolean
+Defines if the street type is before or after the base name.
+streetTypeAttached	
+boolean
+Defines if the street type is attached or unattached to the base name.
+prefix	
+string
+A prefix is a directional identifier that precedes, but is not included in, the base name of a road.
+suffix	
+string
+A suffix is a directional identifier that follows, but is not included in, the base name of a road.
+direction	
+string
+Indicates the official directional identifiers assigned to highways, typically either "North/South" or "East/West"
+language	
+string
+BCP 47 compliant language code
+400 Client error: request failed validation.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+405 Client error: http method not supported.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+429 Client error: Rate limit exceeded.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+503 Temporary server error.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+
+================================================================================
+Browse
+
+GET
+/v1/browse
+https://browse.search.hereapi.com/v1/browse
+
+This endpoint provides search results for places based on different filters, such as categories or name, ranked by distance from a given search center. The only mandatory elements exposed in the response are id and position. The other elements shown in the response samples section are only dataset attributes suggestions.
+
+QUERY PARAMETERS
+apiKey
+string
+A key generated specifically to authenticate API requests. For more information on how to get an API key, see the Identity & Access Management Guide.
+at
+required
+string
+Example: at=52.5308,13.3856
+Specify the center of the search context expressed as coordinates
+Required parameter for endpoints that are expected to rank results by distance from the explicitly specified search center
+Format: {latitude},{longitude}
+Type: {decimal},{decimal}
+Example: -13.163068,-72.545128 (Machu Picchu Mountain, Peru)
+categories	
+Array of strings
+Category filter consisting of a comma-separated list of category-IDs for Categories defined in the HERE Places Category System, described in the Appendix to the HERE Search Developer Guide. Places with any assigned categories that match any of the requested categories are included in the response.
+An exclamation mark "!" in front of a category ID causes that category to be excluded from the results. It is possible to mix excluded and included categories in the request - e.g. searching for places that are restaurants but not fast food restaurants. An exclusion will always win over an inclusion.
+chains	
+Array of strings
+Chain filter consisting of a comma-separated list of chain-IDs for Chains defined in the HERE Places Chain System, described in the Appendix to the HERE Search Developer Guide. Places with any assigned chains that match any of the requested chains are included in the response.
+An exclamation mark "!" in front of a chain ID causes that chain to be excluded from the results. It is possible to mix excluded and included chains in the request - e.g. searching for places that are amazon but not wholefoods. An exclusion will always win over an inclusion.
+foodTypes	
+Array of strings
+FoodType filter consisting of a comma-separated list of cuisine-IDs for FoodTypes defined in the HERE Places Cuisine System, described in the Appendix to the HERE Search Developer Guide. Places with any assigned foodTypes that match any of the requested foodTypes are included in the response.
+An exclamation mark "!" in front of a cuisine ID causes that foodType to be excluded from the results. It is possible to mix excluded and included foodTypes in the request - e.g. searching for places that serve italian but not chinese. An exclusion will always win over an inclusion.
+in	
+string
+Search within a geographic area. This is a hard filter. Results will be returned if they are located within the specified area.
+A geographic area can be
+a country (or multiple countries), provided as comma-separated ISO 3166-1 alpha-3 country codes
+The country codes are to be provided in all uppercase.
+Format: countryCode:{countryCode}[,{countryCode}]*
+Examples:
+countryCode:USA
+countryCode:CAN,MEX,USA
+a circular area, provided as latitude, longitude, and radius (in meters)
+Format: circle:{latitude},{longitude};r={radius}
+Type: circle:{decimal},{decimal};r={integer}
+Example: circle:52.53,13.38;r=10000
+a bounding box, provided as west longitude, south latitude, east longitude, north latitude
+Format: bbox:{west longitude},{south latitude},{east longitude},{north latitude}
+Example: bbox:13.08836,52.33812,13.761,52.6755
+The following constraints apply:
+Parameters "in=circle" and "in=bbox" are mutually exclusive. Only one of them is allowed.
+limit	
+integer <int32> [ 1 .. 100 ]
+Default: 20
+Maximum number of results to be returned.
+name	
+string
+Full-text filter on POI names/titles. Results with a partial match on the name parameter are included in the response.
+route	
+string
+BETA Select within a geographic corridor. This is a hard filter. Results will be returned if they are located within the specified area.
+A route is defined by a Flexible Polyline Encoding, followed by an optional width, represented by a sub-parameter "w".
+Format: {route};w={width}
+In regular expression syntax, the values of route look like:
+[a-zA-Z0-9_-]+(;w=\d+)?
+"[a-zA-Z0-9._-]+" is the encoded flexible polyline.
+"w=\d+" is the optional width. The width is specified in meters from the center of the path. If no width is provided, the default is 1000 meters.
+Type: {Flexible Polyline Encoding};w={integer}
+The following constraints apply:
+A route MUST NOT contain more than 2000 points.
+Examples:
+BFoz5xJ67i1B1B7PzIhaxL7Y
+BFoz5xJ67i1B1B7PzIhaxL7Y;w=5000
+BlD05xgKuy2xCCx9B7vUCl0OhnRC54EqSCzpEl-HCxjD3pBCiGnyGCi2CvwFCsgD3nDC4vB6eC;w=2000
+Note: The last example above can be decoded (using the Python class here as follows:
+>>> import flexpolyline
+>>> polyline = 'BlD05xgKuy2xCCx9B7vUCl0OhnRC54EqSCzpEl-HCxjD3pBCiGnyGCi2CvwFCsgD3nDC4vB6eC'
+>>> flexpolyline.decode(polyline)
+[(52.51994, 13.38663, 1.0), (52.51009, 13.28169, 2.0), (52.43518, 13.19352, 3.0), (52.41073, 13.19645, 4.0), (52.38871, 13.15578, 5.0), (52.37278, 13.1491, 6.0), (52.37375, 13.11546, 7.0), (52.38752, 13.08722, 8.0), (52.40294, 13.07062, 9.0), (52.41058, 13.07555, 10.0)]
+lang	
+Array of strings
+Select the language to be used for result rendering from a list of BCP 47 compliant language codes.
+politicalView	
+string
+Toggle the political view.
+This parameter accepts single ISO 3166-1 alpha-3 country code. The country codes are to be provided in all uppercase.
+For any valid 3 letter country code, for which GS7 does not have dedicated political view, it falls back to the default view.
+For not accepted values of the politicalView parameter the GS7 responds with "400" error code.
+Currently the only supported political views are:
+ARG: Argentina view on Southern Patagonian Ice Field and Tierra Del Fuego, including Falkland Islands, South Georgia and South Sandwich Islands
+EGY: Egypt view on Bir Tawil
+IND: Indian View on Gilgit-Baltistan
+KEN: Kenya view on Ilemi Triangle
+MAR: expressing the Moroccan view on Western Sahara
+PAK: Pakistan View on Jammu and Kashmir and Junagadh Area
+RUS: expressing the Russian view on Crimea
+SDN: Sudan view on Halaib Triangle
+SRB: expressing the Serbian view on Kosovo, Vukovar and Sarengrad Islands
+SUR: Suriname view on Courantyne Headwaters and Lawa Headwaters
+SYR: Syria view on Golan Heights
+TUR: Turkish view on Cyprus and Northern Cyprus
+TZA: Tanzania view on Lake Malawi
+URY: Uruguay view on Rincon de Artigas
+show	
+Array of strings
+Items Enum: "phonemes" "streetInfo" "tz"
+Select additional fields to be rendered in the response. Please note that some of the fields involve additional webservice calls and can increase the overall response time.
+The value is a comma-separated list of the sections to be enabled. For some sections there is a long and a short ID.
+Description of supported values:
+phonemes: Renders phonemes for address and place names into the results.
+streetInfo: For each result item renders additional block with the street name decomposed into its parts like the base name, the street type, etc.
+tz: Renders result items with additional time zone information. Please note that this may impact latency significantly.
+HEADER PARAMETERS
+
+X-Request-ID	
+string
+Used to correlate requests with their responses within a customer's application, for logging and error reporting.
+Format: Free string, but a valid UUIDv4 is recommended.
+Responses
+
+200 The search results.
+RESPONSE SCHEMA: application/json
+
+items
+required
+Array of objects
+The results are presented as a JSON list of candidates in ranked order (most-likely to least-likely) based on the matched location criteria.
+Array ()
+title
+required
+string
+The localized display name of this result item.
+id
+required
+string
+The unique identifier for the result item. This ID can be used for a Look Up by ID search as well.
+politicalView	
+string
+ISO3 country code of the item political view (default for international). This response element is populated when the politicalView parameter is set in the query
+resultType	
+string
+Enum: "administrativeArea" "locality" "street" "intersection" "addressBlock" "houseNumber" "postalCodePoint" "place"
+houseNumberType	
+string
+Enum: "PA" "interpolated"
+PA - a Point Address represents an individual address as a point object. Point Addresses are coming from trusted sources. We can say with high certainty that the address exists and at what position. A Point Address result contains two types of coordinates. One is the access point (or navigation coordinates), which is the point to start or end a drive. The other point is the position or display point. This point varies per source and country. The point can be the rooftop point, a point close to the building entry, or a point close to the building, driveway or parking lot that belongs to the building.
+interpolated - an interpolated address. These are approximate positions as a result of a linear interpolation based on address ranges. Address ranges, especially in the USA, are typical per block. For interpolated addresses, we cannot say with confidence that the address exists in reality. But the interpolation provides a good location approximation that brings people in most use cases close to the target location. The access point of an interpolated address result is calculated based on the address range and the road geometry. The position (display) point is pre-configured offset from the street geometry. Compared to Point Addresses, interpolated addresses are less accurate.
+addressBlockType	
+string
+Enum: "block" "subblock"
+localityType	
+string
+Enum: "postalCode" "subdistrict" "district" "city"
+administrativeAreaType	
+string
+Enum: "county" "state" "country"
+houseNumberFallback	
+boolean
+If true, indicates that the requested house number was corrected to match the nearest known house number. This field is visible only when the value is true.
+address
+required
+object
+Postal address of the result item.
+label	
+string
+Assembled address value built out of the address components according to the regional postal rules. These are the same rules for all endpoints. It may not include all the input terms. For example: "Schulstraße 4, 32547 Bad Oeynhausen, Germany"
+countryCode	
+string
+A three-letter country code. For example: "DEU"
+countryName	
+string
+The localised country name. For example: "Deutschland"
+stateCode	
+string
+A state code or state name abbreviation – country specific. For example, in the United States it is the two letter state abbreviation: "CA" for California.
+state	
+string
+The state division of a country. For example: "North Rhine-Westphalia"
+countyCode	
+string
+A county code or county name abbreviation – country specific. For example, for Italy it is the province abbreviation: "RM" for Rome.
+county	
+string
+A division of a state; typically, a secondary-level administrative division of a country or equivalent.
+city	
+string
+The name of the primary locality of the place. For example: "Bad Oyenhausen"
+district	
+string
+A division of city; typically an administrative unit within a larger city or a customary name of a city's neighborhood. For example: "Bad Oyenhausen"
+subdistrict	
+string
+A subdivision of a district. For example: "Minden-Lübbecke"
+street	
+string
+Name of street. For example: "Schulstrasse"
+block	
+string
+Name of block.
+subblock	
+string
+Name of sub-block.
+postalCode	
+string
+An alphanumeric string included in a postal address to facilitate mail sorting, such as post code, postcode, or ZIP code. For example: "32547"
+houseNumber	
+string
+House number. For example: "4"
+building	
+string
+Name of building.
+position	
+object
+The coordinates (latitude, longitude) of a pin on a map corresponding to the searched place.
+lat
+required
+number <double>
+Latitude of the address. For example: "52.19404"
+lng
+required
+number <double>
+Longitude of the address. For example: "8.80135"
+access	
+Array of objects
+Coordinates of the place you are navigating to (for example, driving or walking). This is a point on a road or in a parking lot.
+Array ()
+lat
+required
+number <double>
+Latitude of the address. For example: "52.19404"
+lng
+required
+number <double>
+Longitude of the address. For example: "8.80135"
+distance	
+integer <int64>
+The distance "as the crow flies" from the search center to this result item in meters. For example: "172039".
+When searching along a route this is the distance along the route plus the distance from the route polyline to this result item.
+excursionDistance	
+integer <int64>
+BETA Two times the distance from the polyline to this result item in meters while searching along the route
+mapView	
+object
+The bounding box enclosing the geometric shape (area or line) that an individual result covers. place typed results have no mapView.
+west
+required
+number <double>
+Longitude of the western-side of the box. For example: "8.80068"
+south
+required
+number <double>
+Latitude of the southern-side of the box. For example: "52.19333"
+east
+required
+number <double>
+Longitude of the eastern-side of the box. For example: "8.8167"
+north
+required
+number <double>
+Latitude of the northern-side of the box. For example: "52.19555"
+categories	
+Array of objects
+The list of categories assigned to this place.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+chains	
+Array of objects
+The list of chains assigned to this place.
+Array ()
+id
+required
+string
+Identifier number for an associated chain. For example: "272"
+references	
+Array of objects
+The list of supplier references available for this place.
+Array ()
+supplier
+required
+object
+Information about the supplier of this reference.
+id
+required
+string
+Identifier of the place as provided by the supplier.
+foodTypes	
+Array of objects
+The list of food types assigned to this place.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+contacts	
+Array of objects
+Contact information like phone, email, WWW.
+Array ()
+phone	
+Array of objects
+Array ()
+label	
+string
+Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+value
+required
+string
+Contact information, as specified by the contact type.
+categories	
+Array of objects
+The list of place categories this contact refers to.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+mobile	
+Array of objects
+Array ()
+label	
+string
+Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+value
+required
+string
+Contact information, as specified by the contact type.
+categories	
+Array of objects
+The list of place categories this contact refers to.
+tollFree	
+Array of objects
+Array ()
+label	
+string
+Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+value
+required
+string
+Contact information, as specified by the contact type.
+categories	
+Array of objects
+The list of place categories this contact refers to.
+fax	
+Array of objects
+Array ()
+label	
+string
+Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+value
+required
+string
+Contact information, as specified by the contact type.
+categories	
+Array of objects
+The list of place categories this contact refers to.
+www	
+Array of objects
+Array ()
+label	
+string
+Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+value
+required
+string
+Contact information, as specified by the contact type.
+categories	
+Array of objects
+The list of place categories this contact refers to.
+email	
+Array of objects
+Array ()
+label	
+string
+Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+value
+required
+string
+Contact information, as specified by the contact type.
+categories	
+Array of objects
+The list of place categories this contact refers to.
+openingHours	
+Array of objects
+A list of hours during which the place is open for business. This field is optional: When it is not present, it means that we are lacking data about the place opening hours. Days without opening hours have to be considered as closed.
+Array ()
+categories	
+Array of objects
+The list of place categories, this set of opening hours refers to.
+text
+required
+Array of strings
+isOpen	
+boolean
+structured
+required
+Array of objects
+List of iCalender-based structured representations of opening hours
+Array ()
+start
+required
+string
+String with a modified iCalendar DATE-TIME value. The date part is omitted, values starts with the time section maker "T". Example: T132000
+duration
+required
+string
+String with an iCalendar DURATION value. A closed day has the value PT00:00M
+recurrence
+required
+string
+String with a RECUR rule. Note that, in contrast to the RFC, the assignment operator is a colon : and not an equal sign =.
+timeZone	
+object
+Provides time zone information for this place. (rendered only if 'show=tz' is provided.)
+name
+required
+string
+The name of the time zone as defined in the tz database. For example: "Europe/Berlin"
+utcOffset
+required
+string
+The UTC offset for this time zone at request time. For example "+02:00"
+extended	
+object
+Extended attributes section to contain detailed information for specific result types.
+phonemes	
+object
+Phonemes for address and place names. (rendered only if 'show=phonemes' is provided.)
+placeName	
+Array of objects
+Phonemes for the name of the place.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+countryName	
+Array of objects
+Phonemes for the county name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+state	
+Array of objects
+Phonemes for the state name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+county	
+Array of objects
+Phonemes for the county name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+city	
+Array of objects
+Phonemes for the city name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+district	
+Array of objects
+Phonemes for the district name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+subdistrict	
+Array of objects
+Phonemes for the subdistrict name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+street	
+Array of objects
+Phonemes for the street name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+block	
+Array of objects
+Phonemes for the block.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+subblock	
+Array of objects
+Phonemes for the sub-block.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+streetInfo	
+Array of objects
+Street Details (only rendered if 'show=streetInfo' is provided.)
+Array ()
+baseName	
+string
+Base name part of the street name.
+streetType	
+string
+Street type part of the street name.
+streetTypePrecedes	
+boolean
+Defines if the street type is before or after the base name.
+streetTypeAttached	
+boolean
+Defines if the street type is attached or unattached to the base name.
+prefix	
+string
+A prefix is a directional identifier that precedes, but is not included in, the base name of a road.
+suffix	
+string
+A suffix is a directional identifier that follows, but is not included in, the base name of a road.
+direction	
+string
+Indicates the official directional identifiers assigned to highways, typically either "North/South" or "East/West"
+language	
+string
+BCP 47 compliant language code
+400 Client error: request failed validation.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+405 Client error: http method not supported.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+429 Client error: Rate limit exceeded.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+503 Temporary server error.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+
+
+Response samples
+
+200
+Content type
+application/json
+
+{
+"items": [
+{
+"title": "string",
+"id": "string",
+"politicalView": "string",
+"resultType": "administrativeArea",
+"houseNumberType": "PA",
+"addressBlockType": "block",
+"localityType": "postalCode",
+"administrativeAreaType": "county",
+"houseNumberFallback": true,
+"address": {
+"label": "string",
+"countryCode": "string",
+"countryName": "string",
+"stateCode": "string",
+"state": "string",
+"countyCode": "string",
+"county": "string",
+"city": "string",
+"district": "string",
+"subdistrict": "string",
+"street": "string",
+"block": "string",
+"subblock": "string",
+"postalCode": "string",
+"houseNumber": "string",
+"building": "string"
+},
+"position": {
+"lat": 0,
+"lng": 0
+},
+"access": [
+{
+"lat": 0,
+"lng": 0
+}
+],
+"distance": 172039,
+"excursionDistance": 0,
+"mapView": {
+"west": 0,
+"south": 0,
+"east": 0,
+"north": 0
+},
+"categories": [
+{
+"id": "string",
+"name": "string",
+"primary": true
+}
+],
+"chains": [
+{
+"id": "string"
+}
+],
+"references": [
+{
+"supplier": {
+"id": "core"
+},
+"id": "string"
+}
+],
+"foodTypes": [
+{
+"id": "string",
+"name": "string",
+"primary": true
+}
+],
+"contacts": [
+{
+"phone": [
+{
+"label": "string",
+"value": "string",
+"categories": [
+{
+"id": "string",
+"name": "string",
+"primary": true
+}
+]
+}
+],
+"mobile": [
+{
+"label": "string",
+"value": "string",
+"categories": [
+{
+"id": "string",
+"name": "string",
+"primary": true
+}
+]
+}
+],
+"tollFree": [
+{
+"label": "string",
+"value": "string",
+"categories": [
+{
+"id": "string",
+"name": "string",
+"primary": true
+}
+]
+}
+],
+"fax": [
+{
+"label": "string",
+"value": "string",
+"categories": [
+{
+"id": "string",
+"name": "string",
+"primary": true
+}
+]
+}
+],
+"www": [
+{
+"label": "string",
+"value": "string",
+"categories": [
+{
+"id": "string",
+"name": "string",
+"primary": true
+}
+]
+}
+],
+"email": [
+{
+"label": "string",
+"value": "string",
+"categories": [
+{
+"id": "string",
+"name": "string",
+"primary": true
+}
+]
+}
+]
+}
+],
+"openingHours": [
+{
+"categories": [
+{
+"id": "string",
+"name": "string",
+"primary": true
+}
+],
+"text": [
+"string"
+],
+"isOpen": true,
+"structured": [
+{
+"start": "string",
+"duration": "string",
+"recurrence": "string"
+}
+]
+}
+],
+"timeZone": {
+"name": "string",
+"utcOffset": "string"
+},
+"extended": { },
+"phonemes": {
+"placeName": [
+{
+"value": "string",
+"language": "string",
+"preferred": true
+}
+],
+"countryName": [
+{
+"value": "string",
+"language": "string",
+"preferred": true
+}
+],
+"state": [
+{
+"value": "string",
+"language": "string",
+"preferred": true
+}
+],
+"county": [
+{
+"value": "string",
+"language": "string",
+"preferred": true
+}
+],
+"city": [
+{
+"value": "string",
+"language": "string",
+"preferred": true
+}
+],
+"district": [
+{
+"value": "string",
+"language": "string",
+"preferred": true
+}
+],
+"subdistrict": [
+{
+"value": "string",
+"language": "string",
+"preferred": true
+}
+],
+"street": [
+{
+"value": "string",
+"language": "string",
+"preferred": true
+}
+],
+"block": [
+{
+"value": "string",
+"language": "string",
+"preferred": true
+}
+],
+"subblock": [
+{
+"value": "string",
+"language": "string",
+"preferred": true
+}
+]
+},
+"streetInfo": [
+{
+"baseName": "string",
+"streetType": "string",
+"streetTypePrecedes": true,
+"streetTypeAttached": true,
+"prefix": "string",
+"suffix": "string",
+"direction": "string",
+"language": "string"
+}
+]
+}
+]
+}
+
+================================================================================
+Reverse Geocode
+
+GET
+/v1/revgeocode
+https://revgeocode.search.hereapi.com/v1/revgeocode
+
+This endpoint returns the nearest address to geo coordinates specified in the request.
+
+QUERY PARAMETERS
+apiKey
+string
+A key generated specifically to authenticate API requests. For more information on how to get an API key, see the Identity & Access Management Guide.
+at	
+string
+Example: at=52.5308,13.3856
+Specify the center of the search context expressed as coordinates.
+Format: {latitude},{longitude}
+Type: {decimal},{decimal}
+Example: -13.163068,-72.545128 (Machu Picchu Mountain, Peru)
+The following constraints apply:
+Either "at" or "in=circle" is required.
+Parameters "at" and "in=circle" are mutually exclusive. Only one of them is allowed.
+in	
+string
+Search within a geographic area. This is a hard filter. Results will be returned if they are located within the specified area.
+A geographic area can be
+a circular area, provided as latitude, longitude, and radius (in meters)
+Format: circle:{latitude},{longitude};r={radius}
+Type: circle:{decimal},{decimal};r={integer}
+Example: circle:52.53,13.38;r=10000
+The following constraints apply:
+Either "at" or "in=circle" is required.
+limit	
+integer <int32> [ 1 .. 100 ]
+Default: 1
+Maximum number of results to be returned.
+lang	
+Array of strings
+Select the language to be used for result rendering from a list of BCP 47 compliant language codes.
+politicalView	
+string
+Toggle the political view.
+This parameter accepts single ISO 3166-1 alpha-3 country code. The country codes are to be provided in all uppercase.
+For any valid 3 letter country code, for which GS7 does not have dedicated political view, it falls back to the default view.
+For not accepted values of the politicalView parameter the GS7 responds with "400" error code.
+Currently the only supported political views are:
+ARG: Argentina view on Southern Patagonian Ice Field and Tierra Del Fuego, including Falkland Islands, South Georgia and South Sandwich Islands
+EGY: Egypt view on Bir Tawil
+IND: Indian View on Gilgit-Baltistan
+KEN: Kenya view on Ilemi Triangle
+MAR: expressing the Moroccan view on Western Sahara
+PAK: Pakistan View on Jammu and Kashmir and Junagadh Area
+RUS: expressing the Russian view on Crimea
+SDN: Sudan view on Halaib Triangle
+SRB: expressing the Serbian view on Kosovo, Vukovar and Sarengrad Islands
+SUR: Suriname view on Courantyne Headwaters and Lawa Headwaters
+SYR: Syria view on Golan Heights
+TUR: Turkish view on Cyprus and Northern Cyprus
+TZA: Tanzania view on Lake Malawi
+URY: Uruguay view on Rincon de Artigas
+show	
+Array of strings
+Items Enum: "countryInfo" "streetInfo" "tz"
+Select additional fields to be rendered in the response. Please note that some of the fields involve additional webservice calls and can increase the overall response time.
+The value is a comma-separated list of the sections to be enabled. For some sections there is a long and a short ID.
+Description of supported values:
+countryInfo: For each result item renders additional block with the country info, such as ISO 3166-1 alpha-2 and ISO 3166-1 alpha-3 country code.
+streetInfo: For each result item renders additional block with the street name decomposed into its parts like the base name, the street type, etc.
+tz: Renders result items with additional time zone information. Please note that this may impact latency significantly.
+
+
+HEADER PARAMETERS
+
+X-Request-ID	
+string
+Used to correlate requests with their responses within a customer's application, for logging and error reporting.
+Format: Free string, but a valid UUIDv4 is recommended.
+
+
+Responses
+
+200 The search results.
+RESPONSE SCHEMA: application/json
+
+items
+required
+Array of objects
+The results are presented as a JSON list of candidates in ranked order (most-likely to least-likely) based on the matched location criteria.
+Array ()
+title
+required
+string
+The localized display name of this result item.
+id
+required
+string
+The unique identifier for the result item. This ID can be used for a Look Up by ID search as well.
+politicalView	
+string
+ISO3 country code of the item political view (default for international). This response element is populated when the politicalView parameter is set in the query
+resultType	
+string
+Enum: "administrativeArea" "locality" "street" "intersection" "addressBlock" "houseNumber" "postalCodePoint" "place"
+houseNumberType	
+string
+Enum: "PA" "interpolated"
+PA - a Point Address represents an individual address as a point object. Point Addresses are coming from trusted sources. We can say with high certainty that the address exists and at what position. A Point Address result contains two types of coordinates. One is the access point (or navigation coordinates), which is the point to start or end a drive. The other point is the position or display point. This point varies per source and country. The point can be the rooftop point, a point close to the building entry, or a point close to the building, driveway or parking lot that belongs to the building.
+interpolated - an interpolated address. These are approximate positions as a result of a linear interpolation based on address ranges. Address ranges, especially in the USA, are typical per block. For interpolated addresses, we cannot say with confidence that the address exists in reality. But the interpolation provides a good location approximation that brings people in most use cases close to the target location. The access point of an interpolated address result is calculated based on the address range and the road geometry. The position (display) point is pre-configured offset from the street geometry. Compared to Point Addresses, interpolated addresses are less accurate.
+addressBlockType	
+string
+Enum: "block" "subblock"
+localityType	
+string
+Enum: "postalCode" "subdistrict" "district" "city"
+administrativeAreaType	
+string
+Enum: "county" "state" "country"
+address
+required
+object
+Postal address of the result item.
+position	
+object
+The coordinates (latitude, longitude) of a pin on a map corresponding to the searched place.
+lat
+required
+number <double>
+Latitude of the address. For example: "52.19404"
+lng
+required
+number <double>
+Longitude of the address. For example: "8.80135"
+access	
+Array of objects
+Coordinates of the place you are navigating to (for example, driving or walking). This is a point on a road or in a parking lot.
+Array ()
+lat
+required
+number <double>
+Latitude of the address. For example: "52.19404"
+lng
+required
+number <double>
+Longitude of the address. For example: "8.80135"
+distance	
+integer <int64>
+The distance "as the crow flies" from the search center to this result item in meters. For example: "172039".
+When searching along a route this is the distance along the route plus the distance from the route polyline to this result item.
+mapView	
+object
+The bounding box enclosing the geometric shape (area or line) that an individual result covers. place typed results have no mapView.
+west
+required
+number <double>
+Longitude of the western-side of the box. For example: "8.80068"
+south
+required
+number <double>
+Latitude of the southern-side of the box. For example: "52.19333"
+east
+required
+number <double>
+Longitude of the eastern-side of the box. For example: "8.8167"
+north
+required
+number <double>
+Latitude of the northern-side of the box. For example: "52.19555"
+categories	
+Array of objects
+The list of categories assigned to this place.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+foodTypes	
+Array of objects
+The list of food types assigned to this place.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+houseNumberFallback	
+boolean
+If true, indicates that the requested house number was corrected to match the nearest known house number. This field is visible only when the value is true.
+timeZone	
+object
+Provides time zone information for this place. (rendered only if 'show=tz' is provided.)
+name
+required
+string
+The name of the time zone as defined in the tz database. For example: "Europe/Berlin"
+utcOffset
+required
+string
+The UTC offset for this time zone at request time. For example "+02:00"
+streetInfo	
+Array of objects
+Street Details (only rendered if 'show=streetInfo' is provided.)
+Array ()
+baseName	
+string
+Base name part of the street name.
+streetType	
+string
+Street type part of the street name.
+streetTypePrecedes	
+boolean
+Defines if the street type is before or after the base name.
+streetTypeAttached	
+boolean
+Defines if the street type is attached or unattached to the base name.
+prefix	
+string
+A prefix is a directional identifier that precedes, but is not included in, the base name of a road.
+suffix	
+string
+A suffix is a directional identifier that follows, but is not included in, the base name of a road.
+direction	
+string
+Indicates the official directional identifiers assigned to highways, typically either "North/South" or "East/West"
+language	
+string
+BCP 47 compliant language code
+countryInfo	
+object
+Country Details (only rendered if 'show=countryInfo' is provided.)
+alpha2	
+string
+ISO 3166-1 alpha-2 country code
+alpha3	
+string
+ISO 3166-1 alpha-3 country code
+
+
+400 Client error: request failed validation.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+
+
+405 Client error: http method not supported.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+
+
+429 Client error: Rate limit exceeded.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+503 Temporary server error.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+
+
+Response samples
+200 Content type application/json
+
+{
+"items": [
+{
+"title": "string",
+"id": "string",
+"politicalView": "string",
+"resultType": "administrativeArea",
+"houseNumberType": "PA",
+"addressBlockType": "block",
+"localityType": "postalCode",
+"administrativeAreaType": "county",
+"address": {
+"label": "string",
+"countryCode": "string",
+"countryName": "string",
+"stateCode": "string",
+"state": "string",
+"countyCode": "string",
+"county": "string",
+"city": "string",
+"district": "string",
+"subdistrict": "string",
+"street": "string",
+"block": "string",
+"subblock": "string",
+"postalCode": "string",
+"houseNumber": "string",
+"building": "string"
+},
+"position": {
+"lat": 0,
+"lng": 0
+},
+"access": [
+{
+"lat": 0,
+"lng": 0
+}
+],
+"distance": 172039,
+"mapView": {
+"west": 0,
+"south": 0,
+"east": 0,
+"north": 0
+},
+"categories": [
+{
+"id": "string",
+"name": "string",
+"primary": true
+}
+],
+"foodTypes": [
+{
+"id": "string",
+"name": "string",
+"primary": true
+}
+],
+"houseNumberFallback": true,
+"timeZone": {
+"name": "string",
+"utcOffset": "string"
+},
+"streetInfo": [
+{
+"baseName": "string",
+"streetType": "string",
+"streetTypePrecedes": true,
+"streetTypeAttached": true,
+"prefix": "string",
+"suffix": "string",
+"direction": "string",
+"language": "string"
+}
+],
+"countryInfo": {
+"alpha2": "string",
+"alpha3": "string"
+}
+}
+]
+}
+
+================================================================================
+
+GET
+/v1/lookup
+https://lookup.search.hereapi.com/v1/lookup
+Lookup By ID
+
+This endpoint looks up a known place by the HERE ID included in the request.
+
+QUERY PARAMETERS
+apiKey
+string
+A key generated specifically to authenticate API requests. For more information on how to get an API key, see the Identity & Access Management Guide.
+id
+required
+string
+Example: id=here:pds:place:276u33db-8097f3194e4b411081b761ea9a366776
+Location ID, which is the ID of a result item eg. of a Discover request
+lang	
+Array of strings
+Select the language to be used for result rendering from a list of BCP 47 compliant language codes.
+politicalView	
+string
+Toggle the political view.
+This parameter accepts single ISO 3166-1 alpha-3 country code. The country codes are to be provided in all uppercase.
+For any valid 3 letter country code, for which GS7 does not have dedicated political view, it falls back to the default view.
+For not accepted values of the politicalView parameter the GS7 responds with "400" error code.
+Currently the only supported political views are:
+ARG: Argentina view on Southern Patagonian Ice Field and Tierra Del Fuego, including Falkland Islands, South Georgia and South Sandwich Islands
+EGY: Egypt view on Bir Tawil
+IND: Indian View on Gilgit-Baltistan
+KEN: Kenya view on Ilemi Triangle
+MAR: expressing the Moroccan view on Western Sahara
+PAK: Pakistan View on Jammu and Kashmir and Junagadh Area
+RUS: expressing the Russian view on Crimea
+SDN: Sudan view on Halaib Triangle
+SRB: expressing the Serbian view on Kosovo, Vukovar and Sarengrad Islands
+SUR: Suriname view on Courantyne Headwaters and Lawa Headwaters
+SYR: Syria view on Golan Heights
+TUR: Turkish view on Cyprus and Northern Cyprus
+TZA: Tanzania view on Lake Malawi
+URY: Uruguay view on Rincon de Artigas
+show	
+Array of strings
+Items Enum: "countryInfo" "phonemes" "streetInfo" "tz"
+Select additional fields to be rendered in the response. Please note that some of the fields involve additional webservice calls and can increase the overall response time.
+The value is a comma-separated list of the sections to be enabled. For some sections there is a long and a short ID.
+Description of supported values:
+countryInfo: For each result item renders additional block with the country info, such as ISO 3166-1 alpha-2 and ISO 3166-1 alpha-3 country code.
+phonemes: Renders phonemes for address and place names into the results.
+streetInfo: For each result item renders additional block with the street name decomposed into its parts like the base name, the street type, etc.
+tz: Renders result items with additional time zone information. Please note that this may impact latency significantly.
+HEADER PARAMETERS
+
+X-Request-ID	
+string
+Used to correlate requests with their responses within a customer's application, for logging and error reporting.
+Format: Free string, but a valid UUIDv4 is recommended.
+Responses
+
+200 The search results.
+RESPONSE SCHEMA: application/json
+
+title
+required
+string
+The localized display name of this result item.
+id
+required
+string
+The unique identifier for the result item. This ID can be used for a Look Up by ID search as well.
+politicalView	
+string
+ISO3 country code of the item political view (default for international). This response element is populated when the politicalView parameter is set in the query
+resultType	
+string
+Enum: "administrativeArea" "locality" "street" "intersection" "addressBlock" "houseNumber" "postalCodePoint" "place"
+houseNumberType	
+string
+Enum: "PA" "interpolated"
+PA - a Point Address represents an individual address as a point object. Point Addresses are coming from trusted sources. We can say with high certainty that the address exists and at what position. A Point Address result contains two types of coordinates. One is the access point (or navigation coordinates), which is the point to start or end a drive. The other point is the position or display point. This point varies per source and country. The point can be the rooftop point, a point close to the building entry, or a point close to the building, driveway or parking lot that belongs to the building.
+interpolated - an interpolated address. These are approximate positions as a result of a linear interpolation based on address ranges. Address ranges, especially in the USA, are typical per block. For interpolated addresses, we cannot say with confidence that the address exists in reality. But the interpolation provides a good location approximation that brings people in most use cases close to the target location. The access point of an interpolated address result is calculated based on the address range and the road geometry. The position (display) point is pre-configured offset from the street geometry. Compared to Point Addresses, interpolated addresses are less accurate.
+addressBlockType	
+string
+Enum: "block" "subblock"
+localityType	
+string
+Enum: "postalCode" "subdistrict" "district" "city"
+administrativeAreaType	
+string
+Enum: "county" "state" "country"
+houseNumberFallback	
+boolean
+If true, indicates that the requested house number was corrected to match the nearest known house number. This field is visible only when the value is true.
+address
+required
+object
+Postal address of the result item.
+label	
+string
+Assembled address value built out of the address components according to the regional postal rules. These are the same rules for all endpoints. It may not include all the input terms. For example: "Schulstraße 4, 32547 Bad Oeynhausen, Germany"
+countryCode	
+string
+A three-letter country code. For example: "DEU"
+countryName	
+string
+The localised country name. For example: "Deutschland"
+stateCode	
+string
+A state code or state name abbreviation – country specific. For example, in the United States it is the two letter state abbreviation: "CA" for California.
+state	
+string
+The state division of a country. For example: "North Rhine-Westphalia"
+countyCode	
+string
+A county code or county name abbreviation – country specific. For example, for Italy it is the province abbreviation: "RM" for Rome.
+county	
+string
+A division of a state; typically, a secondary-level administrative division of a country or equivalent.
+city	
+string
+The name of the primary locality of the place. For example: "Bad Oyenhausen"
+district	
+string
+A division of city; typically an administrative unit within a larger city or a customary name of a city's neighborhood. For example: "Bad Oyenhausen"
+subdistrict	
+string
+A subdivision of a district. For example: "Minden-Lübbecke"
+street	
+string
+Name of street. For example: "Schulstrasse"
+block	
+string
+Name of block.
+subblock	
+string
+Name of sub-block.
+postalCode	
+string
+An alphanumeric string included in a postal address to facilitate mail sorting, such as post code, postcode, or ZIP code. For example: "32547"
+houseNumber	
+string
+House number. For example: "4"
+building	
+string
+Name of building.
+position	
+object
+The coordinates (latitude, longitude) of a pin on a map corresponding to the searched place.
+lat
+required
+number <double>
+Latitude of the address. For example: "52.19404"
+lng
+required
+number <double>
+Longitude of the address. For example: "8.80135"
+access	
+Array of objects
+Coordinates of the place you are navigating to (for example, driving or walking). This is a point on a road or in a parking lot.
+Array ()
+lat
+required
+number <double>
+Latitude of the address. For example: "52.19404"
+lng
+required
+number <double>
+Longitude of the address. For example: "8.80135"
+mapView	
+object
+The bounding box enclosing the geometric shape (area or line) that an individual result covers. place typed results have no mapView.
+west
+required
+number <double>
+Longitude of the western-side of the box. For example: "8.80068"
+south
+required
+number <double>
+Latitude of the southern-side of the box. For example: "52.19333"
+east
+required
+number <double>
+Longitude of the eastern-side of the box. For example: "8.8167"
+north
+required
+number <double>
+Latitude of the northern-side of the box. For example: "52.19555"
+categories	
+Array of objects
+The list of categories assigned to this place.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+chains	
+Array of objects
+The list of chains assigned to this place.
+Array ()
+id
+required
+string
+Identifier number for an associated chain. For example: "272"
+references	
+Array of objects
+The list of supplier references available for this place.
+Array ()
+supplier
+required
+object
+Information about the supplier of this reference.
+id
+required
+string
+Enum: "core" "yelp" "tripadvisor" "parkopedia" "venues" "vinfast" "ryd" "booking.com" "nsr"
+An identifier for the supplier.
+id
+required
+string
+Identifier of the place as provided by the supplier.
+foodTypes	
+Array of objects
+The list of food types assigned to this place.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+contacts	
+Array of objects
+Contact information like phone, email, WWW.
+Array ()
+phone	
+Array of objects
+Array ()
+label	
+string
+Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+value
+required
+string
+Contact information, as specified by the contact type.
+categories	
+Array of objects
+The list of place categories this contact refers to.
+mobile	
+Array of objects
+Array ()
+label	
+string
+Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+value
+required
+string
+Contact information, as specified by the contact type.
+categories	
+Array of objects
+The list of place categories this contact refers to.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+tollFree	
+Array of objects
+Array ()
+label	
+string
+Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+value
+required
+string
+Contact information, as specified by the contact type.
+categories	
+Array of objects
+The list of place categories this contact refers to.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+fax	
+Array of objects
+Array ()
+label	
+string
+Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+value
+required
+string
+Contact information, as specified by the contact type.
+categories	
+Array of objects
+The list of place categories this contact refers to.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+www	
+Array of objects
+Array ()
+label	
+string
+Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+value
+required
+string
+Contact information, as specified by the contact type.
+categories	
+Array of objects
+The list of place categories this contact refers to.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+email	
+Array of objects
+Array ()
+label	
+string
+Optional label for the contact string, such as "Customer Service" or "Pharmacy Fax".
+value
+required
+string
+Contact information, as specified by the contact type.
+categories	
+Array of objects
+The list of place categories this contact refers to.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+openingHours	
+Array of objects
+A list of hours during which the place is open for business. This field is optional: When it is not present, it means that we are lacking data about the place opening hours. Days without opening hours have to be considered as closed.
+Array ()
+categories	
+Array of objects
+The list of place categories, this set of opening hours refers to.
+Array ()
+id
+required
+string
+Identifier number for an associated category. For example: "900-9300-0000"
+name	
+string
+Name of the place category in the result item language.
+primary	
+boolean
+Whether or not it is a primary category. This field is visible only when the value is 'true'.
+text
+required
+Array of strings
+isOpen	
+boolean
+structured
+required
+Array of objects
+List of iCalender-based structured representations of opening hours
+Array ()
+start
+required
+string
+String with a modified iCalendar DATE-TIME value. The date part is omitted, values starts with the time section maker "T". Example: T132000
+duration
+required
+string
+String with an iCalendar DURATION value. A closed day has the value PT00:00M
+recurrence
+required
+string
+String with a RECUR rule. Note that, in contrast to the RFC, the assignment operator is a colon : and not an equal sign =.
+timeZone	
+object
+Provides time zone information for this place. (rendered only if 'show=tz' is provided.)
+name
+required
+string
+The name of the time zone as defined in the tz database. For example: "Europe/Berlin"
+utcOffset
+required
+string
+The UTC offset for this time zone at request time. For example "+02:00"
+extended	
+object
+Extended attributes section to contain detailed information for specific result types.
+phonemes	
+object
+Phonemes for address and place names. (rendered only if 'show=phonemes' is provided.)
+placeName	
+Array of objects
+Phonemes for the name of the place.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+countryName	
+Array of objects
+Phonemes for the county name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+state	
+Array of objects
+Phonemes for the state name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+county	
+Array of objects
+Phonemes for the county name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+city	
+Array of objects
+Phonemes for the city name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+district	
+Array of objects
+Phonemes for the district name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+subdistrict	
+Array of objects
+Phonemes for the subdistrict name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+street	
+Array of objects
+Phonemes for the street name.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+block	
+Array of objects
+Phonemes for the block.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+subblock	
+Array of objects
+Phonemes for the sub-block.
+Array ()
+value
+required
+string
+The actual phonetic transcription in the NT-SAMPA format.
+language	
+string
+The BCP 47 language code.
+preferred	
+boolean
+Whether or not it is the preferred phoneme.
+streetInfo	
+Array of objects
+Street Details (only rendered if 'show=streetInfo' is provided.)
+Array ()
+baseName	
+string
+Base name part of the street name.
+streetType	
+string
+Street type part of the street name.
+streetTypePrecedes	
+boolean
+Defines if the street type is before or after the base name.
+streetTypeAttached	
+boolean
+Defines if the street type is attached or unattached to the base name.
+prefix	
+string
+A prefix is a directional identifier that precedes, but is not included in, the base name of a road.
+suffix	
+string
+A suffix is a directional identifier that follows, but is not included in, the base name of a road.
+direction	
+string
+Indicates the official directional identifiers assigned to highways, typically either "North/South" or "East/West"
+language	
+string
+BCP 47 compliant language code
+countryInfo	
+object
+Country Details (only rendered if 'show=countryInfo' is provided.)
+alpha2	
+string
+ISO 3166-1 alpha-2 country code
+alpha3	
+string
+ISO 3166-1 alpha-3 country code
+400 Client error: request failed validation.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+404 Requested id could not be found.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+405 Client error: http method not supported.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+429 Client error: Rate limit exceeded.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+503 Temporary server error.
+RESPONSE SCHEMA: application/json
+
+status
+required
+integer <int32>
+The HTTP status code
+title
+required
+string
+Human-readable error description
+code	
+string
+Error code
+cause	
+string
+Human-readable explanation for the error
+action	
+string
+Human-readable action for the user
+correlationId
+required
+string
+Auto-generated ID univocally identifying this request
+requestId
+required
+string
+Request identifier provided by the user
+
