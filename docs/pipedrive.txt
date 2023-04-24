@@ -1,3 +1,5 @@
+© 2023 Pipedrive
+
 ================================================================================
 API Reference authentication
 This reference helps you implement the RESTful Pipedrive API v1. This API uses a JSON format for output and is capable of handling CORS (Cross-Origin Resource Sharing) requests. The API is stateless – all requests are validated against an API token. The API token can be obtained manually from the Pipedrive app.

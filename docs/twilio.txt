@@ -1,3 +1,7 @@
+© 2023 Twilio Inc.
+
+================================================================================
+
 SMS API
 Twilio’s Programmable SMS API helps you add robust messaging capabilities to your applications.
 

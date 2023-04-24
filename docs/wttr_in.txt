@@ -1,3 +1,7 @@
+© 2023 Igor Chubin
+https://github.com/chubin/wttr.in
+
+================================================================================
 
 *wttr.in — the right way to ~check~ `curl` the weather!*
 
