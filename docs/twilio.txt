@@ -1,0 +1,593 @@
+© 2023 Twilio Inc.
+
+================================================================================
+
+SMS API
+Twilio’s Programmable SMS API helps you add robust messaging capabilities to your applications.
+
+Using this REST API, you can:
+
+Send and receive SMS messages
+Track the delivery of sent messages
+Schedule SMS messages to send at a later time
+Create a Message resource with Shortened Link and retrieve and modify message history.
+Want more general information on Twilio and SMS? See our Programmable SMS overview and the SMS API pricing page.
+
+================================================================================
+
+Base URL
+
+All URLs referenced in the API documentation have the following base:
+
+https://api.twilio.com/2010-04-01
+The API is served over HTTPS. To ensure data privacy, unencrypted HTTP is not supported.
+You can control your connectivity into Twilio’s platform by including your specific edge location in the subdomain. This will allow you to bring Twilio’s public or private network connectivity closer to your applications for improved performance.
+
+For instance, customers with infrastructure in Germany can make use of the frankfurt edge location by using this base URL:
+
+https://api.frankfurt.us1.twilio.com/2010-04-01
+If you have a private connection through Interconnect in Germany, you can make use of the frankfurt-ix edge location by using this base URL:
+
+https://api.frankfurt-ix.us1.twilio.com/2010-04-01
+
+
+
+================================================================================
+
+SMS API authentication
+
+HTTP requests to the API are protected with HTTP Basic authentication. To learn more about how Twilio handles authentication, please refer to our security documentation.
+
+In short, you will use your Twilio Account SID as the username and your Auth Token as the password for HTTP Basic authentication with Twilio.
+
+curl -G https://api.twilio.com/2010-04-01/Accounts \
+     -u <YOUR_ACCOUNT_SID>:<YOUR_AUTH_TOKEN>
+You can find your Account SID and Auth Token in the Console.
+
+To learn more about authentication and interaction with the Twilio REST API, check out our documentation for requests to the API and Twilio’s response.
+
+
+================================================================================
+
+
+Message Resource
+A Message resource represents an inbound or outbound message. Twilio creates a Message when any of the following occur:
+
+You send an SMS, WhatsApp, or Channels message via the REST API
+You use the <Message> verb in TwiML
+You originate a message from a Programmable Wireless SIM
+Someone sends a message to one of your Twilio numbers
+With this REST API, you can:
+
+Create new messages
+Schedule a new message
+Create a message with shortened link
+Fetch a specific message
+Read a list of messages
+Update or redact the content of an existing message
+Delete messages from your account
+Are you looking for step-by-step instructions for sending your first SMS with Twilio using the helper libraries? Check out one of our SMS quickstarts in your programming language of choice: C#/.NET, Java, Node.js, PHP, Python, or Ruby.
+
+Or, if you're looking to get up and running with the Twilio API for WhatsApp Quickstart: C#/.NET, Java, Node.js, PHP, Python, or Ruby.
+
+
+Message properties. Request uses "application/x-www-form-urlencoded" content type.
+
+Resource Properties in REST API format
+body
+STRING PII MTL: 30 DAYS
+The message text. Can be up to 1,600 characters long.
+
+num_segments
+STRING NOT PII
+The number of segments that make up the complete message. A message body that is too large to be sent in a single SMS message is segmented and charged as multiple messages. Inbound messages over 160 characters are reassembled when the message is received. Note: When using a Messaging Service to send messages, num_segments will always be 0 in Twilio's response to your API request.
+
+direction
+ENUM:DIRECTION NOT PII
+The direction of the message. Can be: inbound for incoming messages, outbound-api for messages initiated by a REST API, outbound-call for messages initiated during a call, or outbound-reply for messages initiated in response to an incoming message.
+
+from
+PHONE_NUMBER PII MTL: 120 DAYS
+The phone number (in E.164 format), alphanumeric sender ID, or Wireless SIM that initiated the message. For incoming messages, this will be the number of the sending phone. For outgoing messages, this value will be one of your Twilio phone numbers or the alphanumeric sender ID used.
+
+to
+STRING PII MTL: 120 DAYS
+The phone number in E.164 format that received the message. For incoming messages, this will be one of your Twilio phone numbers. For outgoing messages, this will be the sending phone.
+
+date_updated
+DATE_TIME<RFC2822> NOT PII
+The date and time in GMT that the resource was last updated specified in RFC 2822 format.
+
+price
+STRING NOT PII
+The amount billed for the message, in the currency specified by price_unit. Note that your account is charged for each segment we send to the handset. Populated after the message has been sent. May not be immediately available.
+
+error_message
+STRING NOT PII
+The description of the error_code if your message status is failed or undelivered. If the message was successful, this value is null.
+
+uri
+STRING NOT PII
+The URI of the resource, relative to https://api.twilio.com.
+
+account_sid
+SID<AC> NOT PII
+The SID of the Account that sent the message that created the resource.
+
+num_media
+STRING NOT PII
+The number of media files associated with the message. A message can send up to 10 media files.
+
+status
+ENUM:STATUS NOT PII
+The status of the message. Can be: accepted, scheduled, canceled, queued, sending, sent, failed, delivered, undelivered, receiving, received, or read (WhatsApp only). For more information, See detailed descriptions.
+
+messaging_service_sid
+SID<MG> NOT PII
+The SID of the Messaging Service used with the message. The value is null if a Messaging Service was not used.
+
+sid
+SID<MM> NOT PII
+The unique string that that we created to identify the Message resource.
+
+date_sent
+DATE_TIME<RFC2822> NOT PII
+The date and time in GMT that the resource was sent specified in RFC 2822 format. For outgoing messages, this is when we sent the message. For incoming messages, this is when we made the HTTP request to your application.
+
+date_created
+DATE_TIME<RFC2822> NOT PII
+The date and time in GMT that the resource was created specified in RFC 2822 format.
+
+error_code
+INTEGER? NOT PII
+The error code returned if your message status is failed or undelivered. The error_code provides more information about the failure. If the message was successful, this value is null.
+
+price_unit
+CURRENCY NOT PII
+The currency in which price is measured, in ISO 4127 format (e.g. usd, eur, jpy).
+
+api_version
+STRING NOT PII
+The API version used to process the message.
+
+subresource_uris
+URI_MAP NOT PII
+A list of related resources identified by their URIs relative to https://api.twilio.com
+
+================================================================================
+
+Create a Message resource
+
+POST https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/Messages.json
+To send a new outgoing message, make an HTTP POST to this Messages list resource URI. Request uses "application/x-www-form-urlencoded" content type.
+
+If you want to send messages while in trial mode, you must first verify your 'To' phone number with Twilio. You can verify your phone number by adding it to your Verified Caller IDs in the console.
+When creating a new message via the API, you must include the To parameter. This value should be either a destination phone number or a Channel address. You also need to pass a Body or MediaUrl containing the message's content.
+
+A WhatsApp media message can only contain one media object. Additional MediaURL parameters will be ignored.
+You must also include either the From parameter or MessagingServiceSid parameter. You may use MessagingServiceSid if sending your message with a messaging service. Alternatively, you can choose a specific number in a messaging service to set as the From.
+
+There is a slight difference in how Twilio's API responds based on the parameter you include:
+
+From: Twilio will validate the phone numbers or Channel addresses synchronously. The API returns either a queued status or an error.
+MessagingServiceSid: the API will first return a status of accepted. Twilio then determines the optimal From phone number. Any delivery errors will be sent asynchronously to your StatusCallback URL.
+If the body of your message is more than 160 GSM-7 characters (or 70 UCS-2 characters), Twilio will send the message as a segmented SMS and charge your account accordingly.
+
+
+
+Parameters
+
+Parameters in REST API format
+AccountSid
+Path
+POST SID<AC> NOT PII
+The SID of the Account that will create the resource.
+
+To
+Required
+POST PHONE_NUMBER PII MTL: 120 DAYS
+The destination phone number in E.164 format for SMS/MMS or Channel user address for other 3rd-party channels.
+
+StatusCallback
+Optional
+POST URL NOT PII
+The URL we should call using the status_callback_method to send status information to your application. If specified, we POST these message status changes to the URL: queued, failed, sent, delivered, or undelivered. Twilio will POST its standard request parameters as well as some additional parameters including MessageSid, MessageStatus, and ErrorCode. If you include this parameter with the messaging_service_sid, we use this URL instead of the Status Callback URL of the Messaging Service. URLs must contain a valid hostname and underscores are not allowed.
+
+ApplicationSid
+Optional
+POST SID<AP> NOT PII
+The SID of the application that should receive message status. We POST a message_sid parameter and a message_status parameter with a value of sent or failed to the application's message_status_callback. If a status_callback parameter is also passed, it will be ignored and the application's message_status_callback parameter will be used.
+
+MaxPrice
+Optional
+POST DECIMAL NOT PII
+The maximum total price in US dollars that you will pay for the message to be delivered. Can be a decimal value that has up to 4 decimal places. All messages are queued for delivery and the message cost is checked before the message is sent. If the cost exceeds max_price, the message will fail and a status of Failed is sent to the status callback. If MaxPrice is not set, the message cost is not checked.
+
+ProvideFeedback
+Optional
+POST BOOLEAN NOT PII
+Whether to confirm delivery of the message. Set this value to true if you are sending messages that have a trackable user action and you intend to confirm delivery of the message using the Message Feedback API. This parameter is false by default.
+
+Attempt
+Optional
+POST INTEGER NOT PII
+Total number of attempts made ( including this ) to send out the message regardless of the provider used
+
+ValidityPeriod
+Optional
+POST INTEGER NOT PII
+How long in seconds the message can remain in our outgoing message queue. After this period elapses, the message fails and we call your status callback. Can be between 1 and the default value of 14,400 seconds. After a message has been accepted by a carrier, however, we cannot guarantee that the message will not be queued after this period. We recommend that this value be at least 5 seconds.
+
+ForceDelivery
+Optional
+POST BOOLEAN NOT PII
+Reserved
+
+ContentRetention
+Optional
+POST ENUM:CONTENT_RETENTION NOT PII
+Determines if the message content can be stored or redacted based on privacy settings
+
+AddressRetention
+Optional
+POST ENUM:ADDRESS_RETENTION NOT PII
+Determines if the address can be stored or obfuscated based on privacy settings
+
+SmartEncoded
+Optional
+POST BOOLEAN NOT PII
+Whether to detect Unicode characters that have a similar GSM-7 character and replace them. Can be: true or false.
+
+PersistentAction
+Optional
+POST STRING[] NOT PII
+Rich actions for Channels Messages.
+
+ShortenUrls
+Optional
+POST BOOLEAN NOT PII
+Determines the usage of Click Tracking. Setting it to true will instruct Twilio to replace all links in the Message with a shortened version based on the associated Domain Sid and track clicks on them. If this parameter is not set on an API call, we will use the value set on the Messaging Service. If this parameter is not set and the value is not configured on the Messaging Service used this will default to false.
+
+ScheduleType
+Optional
+POST IENUM:SCHEDULE_TYPE NOT PII
+Indicates your intent to schedule a message. Pass the value fixed to schedule a message at a fixed time.
+
+SendAt
+Optional
+POST DATE_TIME<ISO8601> NOT PII
+The time that Twilio will send the message. Must be in ISO 8601 format.
+
+SendAsMms
+Optional
+POST BOOLEAN NOT PII
+If set to True, Twilio will deliver the message as a single MMS message, regardless of the presence of media.
+
+ContentSid
+Optional
+POST SID<HX> NOT PII
+The SID of the Content object returned at Content API content create time (https://www.twilio.com/docs/content-api/create-and-send-your-first-content-api-template#create-a-template). If this parameter is not specified, then the Content API will not be utilized.
+
+ContentVariables
+Optional
+POST STRING NOT PII
+Key-value pairs of variable names to substitution values, used alongside a content_sid. If not specified, Content API will default to the default variables defined at create time.
+
+From
+Required if MessagingServiceSid is not passed
+POST PHONE_NUMBER PII MTL: 120 DAYS
+A Twilio phone number in E.164 format, an alphanumeric sender ID, or a Channel Endpoint address that is enabled for the type of message you want to send. Phone numbers or short codes purchased from Twilio also work here. You cannot, for example, spoof messages from a private cell phone number. If you are using messaging_service_sid, this parameter must be empty.
+
+MessagingServiceSid
+Required if From is not passed
+POST SID<MG> NOT PII
+The SID of the Messaging Service you want to associate with the Message. Set this parameter to use the Messaging Service Settings and Copilot Features you have configured and leave the from parameter empty. When only this parameter is set, Twilio will use your enabled Copilot Features to select the from phone number for delivery.
+
+Body
+Required if MediaUrl is not passed
+POST STRING PII MTL: 30 DAYS
+The text of the message you want to send. Can be up to 1,600 characters in length.
+
+MediaUrl
+Required if Body is not passed
+POST URL[] PII MTL: 30 DAYS
+The URL of the media to send with the message. The media can be of type gif, png, and jpeg and will be formatted correctly on the recipient's device. The media size limit is 5MB for supported file types (JPEG, PNG, GIF) and 500KB for other types of accepted media. To send more than one image in the message body, provide multiple media_url parameters in the POST request. You can include up to 10 media_url parameters per message. You can send images in an SMS message in only the US and Canada.
+
+Example
+
+curl -X POST "https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_SID/Messages.json" \
+--data-urlencode "From=+15017122661" \
+--data-urlencode "Body=Hi there" \
+--data-urlencode "To=+15558675310" \
+-u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN
+
+
+EXAMPLE JSON RESPONSE
+{
+  "account_sid": "ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "api_version": "2010-04-01",
+  "body": "Hi there",
+  "date_created": "Thu, 30 Jul 2015 20:12:31 +0000",
+  "date_sent": "Thu, 30 Jul 2015 20:12:33 +0000",
+  "date_updated": "Thu, 30 Jul 2015 20:12:33 +0000",
+  "direction": "outbound-api",
+  "error_code": null,
+  "error_message": null,
+  "from": "+15017122661",
+  "messaging_service_sid": "MGXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "num_media": "0",
+  "num_segments": "1",
+  "price": null,
+  "price_unit": null,
+  "sid": "SMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "status": "sent",
+  "subresource_uris": {
+    "media": "/2010-04-01/Accounts/ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Messages/SMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Media.json"
+  },
+  "to": "+15558675310",
+  "uri": "/2010-04-01/Accounts/ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Messages/SMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.json"
+}
+
+================================================================================
+
+
+Fetch a Message resource
+GET https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/Messages/{Sid}.json
+Returns a single message specified by the provided Message <SID>.
+
+Parameters
+Parameters in REST API format
+AccountSid
+Path
+GET SID<AC> NOT PII
+The SID of the Account that created the Message resource to fetch.
+Sid
+Path
+GET SID<MM> NOT PII
+The Twilio-provided string that uniquely identifies the Message resource to fetch.
+Response
+curl -X GET "https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_SID/Messages/MMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.json" \
+-u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN
+EXAMPLE JSON RESPONSE
+{
+  "account_sid": "ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "api_version": "2010-04-01",
+  "body": "testing",
+  "date_created": "Fri, 24 May 2019 17:18:27 +0000",
+  "date_sent": "Fri, 24 May 2019 17:18:28 +0000",
+  "date_updated": "Fri, 24 May 2019 17:18:28 +0000",
+  "direction": "outbound-api",
+  "error_code": 30007,
+  "error_message": "Carrier violation",
+  "from": "+12019235161",
+  "messaging_service_sid": "MGXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "num_media": "0",
+  "num_segments": "1",
+  "price": "-0.00750",
+  "price_unit": "USD",
+  "sid": "MMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "status": "sent",
+  "subresource_uris": {
+    "media": "/2010-04-01/Accounts/ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Messages/SMb7c0a2ce80504485a6f653a7110836f5/Media.json",
+    "feedback": "/2010-04-01/Accounts/ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Messages/SMb7c0a2ce80504485a6f653a7110836f5/Feedback.json"
+  },
+  "to": "+18182008801",
+  "uri": "/2010-04-01/Accounts/ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Messages/SMb7c0a2ce80504485a6f653a7110836f5.json"
+}
+
+================================================================================
+
+Read multiple Message resources
+GET https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/Messages.json
+Returns a list of messages associated with your account. If you are using the Twilio REST API or the Twilio-CLI, the list includes paging information. If you use one of Twilio's Server-Side Helper Libraries, paging happens under the hood.
+When getting the list of all messages, results will be sorted on the DateSent field with the most recent messages appearing first.
+If you are using the Twilio REST API and plan on requesting more records than will fit on a single page, you may want to use the provided nextpageuri. This method ensures that your next request picks up where it left off and can prevent you from retrieving duplicate data if you are actively sending or receiving messages.
+This is not necessary if you are using a Twilio Helper Library, which will automatically handle paging. Take a look at the Helper Library documentation for more information.
+You may also filter the list by providing the following query string parameters to the listing resource:
+Parameters
+Parameters in REST API format
+AccountSid
+Path
+GET SID<AC> NOT PII
+The SID of the Account that created the Message resources to read.
+To
+Optional
+GET PHONE_NUMBER PII MTL: 120 DAYS
+Read messages sent to only this phone number.
+From
+Optional
+GET PHONE_NUMBER PII MTL: 120 DAYS
+Read messages sent from only this phone number or alphanumeric sender ID.
+DateSent
+Optional
+GET DATE_TIME_INEQUALITY<ISO8601> NOT PII
+The date of the messages to show. Specify a date as YYYY-MM-DD in GMT to read only messages sent on this date. For example: 2009-07-06. You can also specify an inequality, such as DateSent<=YYYY-MM-DD, to read messages sent on or before midnight on a date, and DateSent>=YYYY-MM-DD to read messages sent on or after midnight on a date.
+
+Response
+curl -X GET "https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_SID/Messages.json?PageSize=20" \
+-u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN
+EXAMPLE JSON RESPONSE
+{
+  "end": 1,
+  "first_page_uri": "/2010-04-01/Accounts/ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Messages.json?To=%2B123456789&From=%2B987654321&DateSent%3E=2008-01-02&PageSize=2&Page=0",
+  "next_page_uri": "/2010-04-01/Accounts/ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Messages.json?To=%2B123456789&From=%2B987654321&DateSent%3E=2008-01-02&PageSize=2&Page=1&PageToken=PAMMc26223853f8c46b4ab7dfaa6abba0a26",
+  "page": 0,
+  "page_size": 2,
+  "previous_page_uri": "/2010-04-01/Accounts/ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Messages.json?To=%2B123456789&From=%2B987654321&DateSent%3E=2008-01-02&PageSize=2&Page=0",
+  "messages": [
+    {
+      "account_sid": "ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+      "api_version": "2010-04-01",
+      "body": "testing",
+      "date_created": "Fri, 24 May 2019 17:44:46 +0000",
+      "date_sent": "Fri, 24 May 2019 17:44:50 +0000",
+      "date_updated": "Fri, 24 May 2019 17:44:50 +0000",
+      "direction": "outbound-api",
+      "error_code": null,
+      "error_message": null,
+      "from": "+12019235161",
+      "messaging_service_sid": null,
+      "num_media": "0",
+      "num_segments": "1",
+      "price": "-0.00750",
+      "price_unit": "USD",
+      "sid": "SMded05904ccb347238880ca9264e8fe1c",
+      "status": "sent",
+      "subresource_uris": {
+        "media": "/2010-04-01/Accounts/ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Messages/SMded05904ccb347238880ca9264e8fe1c/Media.json",
+        "feedback": "/2010-04-01/Accounts/ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Messages/SMded05904ccb347238880ca9264e8fe1c/Feedback.json"
+      },
+      "tags": {
+        "campaign_name": "Spring Sale 2022",
+        "message_type": "cart_abandoned"
+      },
+      "to": "+18182008801",
+      "uri": "/2010-04-01/Accounts/ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Messages/SMded05904ccb347238880ca9264e8fe1c.json"
+    },
+    {
+      "account_sid": "ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+      "api_version": "2010-04-01",
+      "body": "look mom I have media!",
+      "date_created": "Fri, 24 May 2019 17:44:46 +0000",
+      "date_sent": "Fri, 24 May 2019 17:44:49 +0000",
+      "date_updated": "Fri, 24 May 2019 17:44:49 +0000",
+      "direction": "inbound",
+      "error_code": 30004,
+      "error_message": "Message blocked",
+      "from": "+12019235161",
+      "messaging_service_sid": null,
+      "num_media": "3",
+      "num_segments": "1",
+      "price": "-0.00750",
+      "price_unit": "USD",
+      "sid": "MMc26223853f8c46b4ab7dfaa6abba0a26",
+      "status": "received",
+      "subresource_uris": {
+        "media": "/2010-04-01/Accounts/ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Messages/MMc26223853f8c46b4ab7dfaa6abba0a26/Media.json",
+        "feedback": "/2010-04-01/Accounts/ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Messages/MMc26223853f8c46b4ab7dfaa6abba0a26/Feedback.json"
+      },
+      "tags": {
+        "campaign_name": "Spring Sale 2022",
+        "message_type": "cart_abandoned"
+      },
+      "to": "+18182008801",
+      "uri": "/2010-04-01/Accounts/ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Messages/MMc26223853f8c46b4ab7dfaa6abba0a26.json"
+    }
+  ],
+  "start": 0,
+  "uri": "/2010-04-01/Accounts/ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Messages.json?To=%2B123456789&From=%2B987654321&DateSent%3E=2008-01-02&PageSize=2&Page=0"
+}
+
+================================================================================
+
+Update a Message resource
+POST https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/Messages/{Sid}.json
+Updates the body of a Message resource.
+This action is primarily used to redact messages: to do so, POST to the above URI and set the Body parameter as an empty string: "". This will allow you to effectively redact the text of a message while keeping the other message resource properties intact.
+Parameters
+Parameters in REST API format
+AccountSid
+Path
+POST SID<AC> NOT PII
+The SID of the Account that created the Message resources to update.
+Sid
+Path
+POST SID<MM> NOT PII
+The Twilio-provided string that uniquely identifies the Message resource to update.
+Body
+Optional
+POST STRING PII MTL: 30 DAYS
+The text of the message you want to send. Can be up to 1,600 characters long.
+Status
+Optional
+POST IENUM:UPDATE_STATUS NOT PII
+When set as canceled, allows a message cancelation request if a message has not yet been sent.
+
+
+Response
+curl -XPOST https://api.twilio.com/2010-04-01/Accounts/ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Messages/MM800f449d0399ed014aae2bcc0cc2f2ec.json \
+    -d "Body=" \
+    -u 'ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX:your_auth_token'
+EXAMPLE JSON RESPONSE
+{
+   "account_sid": "ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+   "api_version": "2010-04-01",
+   "body": "",
+   "error_code": null,
+   "error_message": null,
+   "num_segments": "1",
+   "num_media": "0",
+   "date_created": "Mon, 16 Aug 2010 03:45:01 +0000",
+   "date_sent": "Mon, 16 Aug 2010 03:45:03 +0000",
+   "date_updated": "Mon, 16 Aug 2010 03:45:03 +0000",
+   "direction": "outbound-api",
+   "from": "+14158141829",
+   "price": "-0.02000",
+   "sid": "MM800f449d0399ed014aae2bcc0cc2f2ec",
+   "status": "sent",
+   "to": "+15558675310",
+   "uri": "/2010-04-01/Accounts/ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Messages/MM800f449d0399ed014aae2bcc0cc2f2ec.json"
+}
+
+================================================================================
+
+Cancel a Scheduled Message
+Before you use this functionality:
+Ensure the status value of canceled is spelled with one "l", (canceled) and not two (cancelled).
+Ensure that you store the MessageSid of the messages you schedule. You need to reference the MessageSid for each message cancelation request
+There is no bulk cancelation. If you’d like to cancel multiple messages, you must send in a cancelation request for each message and reference the MessageSid.
+There is a new status callback event for Canceled. You can continue to receive existing callback events by including the optional StatusCallBack parameter in the message request.
+Note: We make the best attempt to cancel a scheduled message when we receive your request.
+curl -X POST "https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_SID/Messages/MMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.json" \
+--data-urlencode "Status=canceled" \
+-u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN
+EXAMPLE JSON RESPONSE
+{
+  "account_sid": "ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "api_version": "2010-04-01",
+  "body": "Hello World!",
+  "date_created": "Fri, 24 May 2019 17:18:27 +0000",
+  "date_sent": null,
+  "date_updated": "Fri, 24 May 2019 18:18:28 +0000",
+  "direction": "outbound-api",
+  "error_code": null,
+  "error_message": null,
+  "from": null,
+  "messaging_service_sid": "MGXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "num_media": "0",
+  "num_segments": "1",
+  "price": null,
+  "price_unit": "USD",
+  "sid": "MMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "status": "canceled",
+  "subresource_uris": {
+    "media": "/2010-04-01/Accounts/ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Messages/SMb7c0a2ce80504485a6f653a7110836f5/Media.json",
+    "feedback": "/2010-04-01/Accounts/ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Messages/SMb7c0a2ce80504485a6f653a7110836f5/Feedback.json"
+  },
+  "to": "+18182008801",
+  "uri": "/2010-04-01/Accounts/ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Messages/SMb7c0a2ce80504485a6f653a7110836f5.json"
+}
+
+================================================================================
+
+
+Delete a Message resource
+DELETE https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/Messages/{Sid}.json
+Deletes a message record from your account. Once the record is deleted, it will no longer appear in the API and Account Portal logs.
+If successful, returns HTTP 204 (No Content) with no body.
+Attempting to delete an in-progress message record will result in an error.
+Parameters
+Parameters in REST API format
+AccountSid
+Path
+DELETE SID<AC> NOT PII
+The SID of the Account that created the Message resources to delete.
+Sid
+Path
+DELETE SID<MM> NOT PII
+The Twilio-provided string that uniquely identifies the Message resource to delete.
+
+curl -X DELETE "https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_SID/Messages/MMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.json" \
+-u $TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN
+
+================================================================================
