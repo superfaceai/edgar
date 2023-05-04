@@ -1,0 +1,12 @@
+{
+  "name": "open_meteo",
+  "defaultService": "default",
+  "services": [
+    {
+      "id": "default",
+      "baseUrl": "https://api.open-meteo.com/"
+    }
+  ],
+  "securitySchemes": [],
+  "parameters": []
+}

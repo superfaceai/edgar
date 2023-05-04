@@ -1,0 +1,27 @@
+{
+  "name": "sendgrid",
+  "services": [
+    {
+      "id": "default",
+      "baseUrl": "https://api.sendgrid.com"
+    }
+  ],
+  "defaultService": "default",
+  "securitySchemes": [
+    {
+      "id": "bearer_token",
+      "type": "http",
+      "scheme": "bearer"
+    }
+  ],
+  "parameters": [
+    {
+      "name": "email",
+      "description": "Email of sender - must be set to a valid email address that is registered with SendGrid"
+    },
+    {
+      "name": "name",
+      "description": "Name of sender - must be set to a valid name that is registered with SendGrid"
+    }
+  ]
+}

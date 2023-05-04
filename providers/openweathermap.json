@@ -1,0 +1,18 @@
+{
+  "name": "openweathermap",
+  "services": [
+    {
+      "id": "default",
+      "baseUrl": "https://api.openweathermap.org"
+    }
+  ],
+  "defaultService": "default",
+  "securitySchemes": [
+    {
+      "id": "apikey",
+      "type": "apiKey",
+      "in": "query",
+      "name": "appid"
+    }
+  ]
+}

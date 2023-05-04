@@ -1,0 +1,10 @@
+{
+  "name": "wttr_in",
+  "services": [
+    {
+      "id": "default",
+      "baseUrl": "https://wttr.in"
+    }
+  ],
+  "defaultService": "default"
+}

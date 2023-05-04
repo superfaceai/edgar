@@ -1,0 +1,19 @@
+{
+  "name": "pipedrive",
+  "defaultService": "default",
+  "services": [
+    {
+      "id": "default",
+      "baseUrl": "https://api.pipedrive.com/v1"
+    }
+  ],
+  "securitySchemes": [
+    {
+      "id": "apiKey",
+      "type": "apiKey",
+      "in": "query",
+      "name": "api_token"
+    }
+  ],
+  "parameters": []
+}
